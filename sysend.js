@@ -16,8 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *  The idea for this implementation came from this StackOverflow question:
- *  http://stackoverflow.com/questions/24182409/sending-notifications-between-
- *  instances-of-the-page-in-the-same-browser
+ *  http://stackoverflow.com/q/24182409/387194
  */
 var sysend = (function() {
     // we use id because storage event is not executed if message was not
