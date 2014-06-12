@@ -14,9 +14,15 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  The idea for this implementation came from this StackOverflow question:
+ *  http://stackoverflow.com/questions/24182409/sending-notifications-between-
+ *  instances-of-the-page-in-the-same-browser
  */
 var sysend = (function() {
-    var id = 0;
+    // we use id because storage event is not executed if message was not
+    // changed, and we want it if user send same object twice
+    var id = 0; 
     function get(key) {
         return localStorage.getItem(key);
     }
@@ -44,8 +50,10 @@ var sysend = (function() {
     var timer;
     return {
         broadcast: function(event, message) {
-            set(event, to_json(message));
+            // undefined is not stringified
+            set(event, to_json(message || null));
             cleanTimeout(timer);
+            // clean up localstorage
             timer = setTimeout(function() {
                 remove(event);
             }, 1000);
