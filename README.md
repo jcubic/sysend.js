@@ -25,7 +25,7 @@ window.onload = function() {
 
 ## API
 
-sysend:
+sysend object:
 
 * on(name, callback)  - callback(message, name) - add event
 * off(name [, callback]) - remove event
@@ -34,7 +34,10 @@ sysend:
 ## License
 
 Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl>
+
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 
+
 This is free software; you are free to change and redistribute it.
+
 There is NO WARRANTY, to the extent permitted by law.
