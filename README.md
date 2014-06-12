@@ -33,11 +33,9 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl>
-
+Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl><br/>
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 
 
-This is free software; you are free to change and redistribute it.
-
+This is free software; you are free to change and redistribute it.<br/>
 There is NO WARRANTY, to the extent permitted by law.
