@@ -23,6 +23,9 @@ var sysend = (function() {
     function set(key, value) {
         localStorage.setItem(key, value);
     }
+    function remove(key) {
+        localStorage.removeItem(key);
+    }
     function to_json(message) {
         return JSON.stringify([id++, message]);
     }
@@ -38,9 +41,14 @@ var sysend = (function() {
             });
         }
     }, false);
+    var timer;
     return {
         broadcast: function(event, message) {
             set(event, to_json(message));
+            cleanTimeout(timer);
+            timer = setTimeout(function() {
+                remove(event);
+            }, 1000);
         },
         on: function(event, fn) {
             if (!callbacks[event]) {
