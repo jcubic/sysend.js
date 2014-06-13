@@ -19,39 +19,48 @@
  *  http://stackoverflow.com/q/24182409/387194
  */
 var sysend = (function() {
+    // we use prefix so `foo' event don't colide with `foo' locaStorage value
+    var uniq_prefix = '___sysend___';
     // we use id because storage event is not executed if message was not
     // changed, and we want it if user send same object twice
-    var id = 0; 
+    var id = 0;
     function get(key) {
-        return localStorage.getItem(key);
+        return localStorage.getItem(uniq_prefix + key);
     }
     function set(key, value) {
-        localStorage.setItem(key, value);
+        localStorage.setItem(uniq_prefix + key, value);
     }
     function remove(key) {
-        localStorage.removeItem(key);
+        localStorage.removeItem(uniq_prefix + key);
     }
-    function to_json(message) {
-        return JSON.stringify([id++, message]);
+    function to_json(input) {
+        var obj = [id++];
+        if (typeof input != 'undefined') {
+            obj.push(input);
+        }
+        return JSON.stringify(obj);
     }
     function from_json(json) {
-        return JSON.parse(json)[1];
+        return JSON.parse(json);
     }
     var callbacks = {};
     window.addEventListener('storage', function(e) {
-        if (callbacks[e.key]) {
-            var message = from_json(get(e.key));
-            callbacks[e.key].forEach(function(fn) {
-                fn(message, e.key);
-            });
+        var key = e.key.replace(new RegExp('^' + uniq_prefix), '');
+        if (callbacks[key]) {
+            var obj = JSON.parse(get(key));
+            if (obj) {
+                // don't call if removed
+                callbacks[key].forEach(function(fn) {
+                    fn(obj[1], key);
+                });
+            }
         }
     }, false);
     var timer;
     return {
         broadcast: function(event, message) {
-            // undefined is not stringified
-            set(event, to_json(message || null));
-            cleanTimeout(timer);
+            set(event, to_json(message));
+            clearTimeout(timer);
             // clean up localstorage
             timer = setTimeout(function() {
                 remove(event);
