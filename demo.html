@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Sysend demo</title>
+    <script src="sysend.js"></script>
+    <script>
+window.onload = function() {
+    sysend.on('foo', function(message) {
+        console.log(message);
+    });
+    sysend.on('message', function(message) {
+        console.log(message);
+    });
+    var a = document.getElementById('a');
+    var b = document.getElementById('b');
+    var input = document.getElementsByTagName('input')[0];
+    a.onclick = function() {
+        sysend.broadcast('foo', {message: input.value});
+    };
+    b.onclick = function() {
+        sysend.broadcast('message');
+    };
+};
+    </script>
+</head>
+<body>
+    <input/>
+    <button id="a">object {message}</button>
+	<button id="b">empty</button>
+</body>
+</html>
