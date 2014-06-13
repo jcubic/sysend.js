@@ -19,10 +19,11 @@
  *  http://stackoverflow.com/q/24182409/387194
  */
 var sysend = (function() {
-    // we use prefix so `foo' event don't colide with `foo' locaStorage value
+    // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
     // we use id because storage event is not executed if message was not
-    // changed, and we want it if user send same object twice
+    // changed, and we want it if user send same object twice (before it will
+    // be removed)
     var id = 0;
     function get(key) {
         return localStorage.getItem(uniq_prefix + key);
@@ -35,6 +36,7 @@ var sysend = (function() {
     }
     function to_json(input) {
         var obj = [id++];
+        // undefined in array get stringified as null
         if (typeof input != 'undefined') {
             obj.push(input);
         }
@@ -43,13 +45,15 @@ var sysend = (function() {
     function from_json(json) {
         return JSON.parse(json);
     }
+    // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     window.addEventListener('storage', function(e) {
+        // get user key
         var key = e.key.replace(new RegExp('^' + uniq_prefix), '');
         if (callbacks[key]) {
             var obj = JSON.parse(get(key));
             if (obj) {
-                // don't call if removed
+                // don't call on remove
                 callbacks[key].forEach(function(fn) {
                     fn(obj[1], key);
                 });
