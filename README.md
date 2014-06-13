@@ -28,9 +28,9 @@ window.onload = function() {
 
 sysend object:
 
-* on(name, callback)  - callback(message, name) - add event
+* on(name, callback)  - callback(object, name) - add event
 * off(name [, callback]) - remove event
-* broadcast(name, object) - send message and fire all events with specified name
+* broadcast(name [, object]) - send object and fire all events with specified name. You can just send notification without object
 
 ## License
 
