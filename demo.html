@@ -6,11 +6,17 @@
     <script src="sysend.js"></script>
     <script>
 window.onload = function() {
-    sysend.on('foo', function(message) {
-        console.log(message);
+    var pre = document.getElementsByTagName('pre')[0];
+    function message(msg) {
+        pre.innerHTML += msg + '\n';
+    }
+    sysend.on('foo', function(obj) {
+        message('just get event "foo" with message: ' + obj.message);
     });
-    sysend.on('message', function(message) {
-        console.log(message);
+    sysend.on('notification', function(obj) {
+        if (typeof obj == 'undefined') {
+            message('just got empty notification');
+        }
     });
     var a = document.getElementById('a');
     var b = document.getElementById('b');
@@ -19,14 +25,17 @@ window.onload = function() {
         sysend.broadcast('foo', {message: input.value});
     };
     b.onclick = function() {
-        sysend.broadcast('message');
+        sysend.broadcast('notification');
     };
 };
     </script>
 </head>
 <body>
+    <h1>sysend.js demo</h1>
+    <h2>Open this page in two different tabs</h2>
     <input/>
     <button id="a">object {message}</button>
-	<button id="b">empty</button>
+    <button id="b">empty</button>
+    <pre></pre>
 </body>
 </html>
