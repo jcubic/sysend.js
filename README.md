@@ -1,11 +1,11 @@
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
-open in same browser. They need to be in same domain. The library don't use
+open in the same browser. They need to be in same domain. The library don't use
 any dependencies and use HTML5 LocalStorage API. You can send any object that
-can be serialized to JSON.
+can be serialized to JSON or just send empty notification.
 
-Tested only in GNU/Linux Chromium
+Tested on GNU/Linux in Chromium 34, FireFox 29, Opera 12.16 (64bit)
 
 ## Usage
 
@@ -21,8 +21,6 @@ window.onload = function() {
     };
 };
 ```
-
-
 
 ## API
 
