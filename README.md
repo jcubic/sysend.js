@@ -1,6 +1,6 @@
 ## sysend.js
 
-sysend.js is small library that allow to send message between page that are
+sysend.js is small library that allow to send message between pages that are
 open in same browser. They need to be in same domain. The library don't use
 any dependencies and use HTML5 LocalStorage API. You can send any object that
 can be serialized to JSON.
