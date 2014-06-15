@@ -22,6 +22,10 @@ window.onload = function() {
 };
 ```
 
+## Demo
+
+Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
+
 ## API
 
 sysend object:
