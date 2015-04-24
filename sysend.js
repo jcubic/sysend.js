@@ -85,9 +85,7 @@ var sysend = (function() {
                         }
                     }
                 } else {
-                    for (var i=callbacks[event].length; i--;) {
-                        callbacks[event].splice(i, 1);
-                    }
+                    callbacks[event] = [];
                 }
             }
         }
