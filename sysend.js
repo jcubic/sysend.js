@@ -60,15 +60,11 @@ var sysend = (function() {
             }
         }
     }, false);
-    var timer;
     return {
         broadcast: function(event, message) {
             set(event, to_json(message));
-            clearTimeout(timer);
             // clean up localstorage
-            timer = setTimeout(function() {
-                remove(event);
-            }, 1000);
+            remove(event);
         },
         on: function(event, fn) {
             if (!callbacks[event]) {
