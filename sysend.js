@@ -64,7 +64,9 @@ var sysend = (function() {
         broadcast: function(event, message) {
             set(event, to_json(message));
             // clean up localstorage
-            remove(event);
+            setTimeout(function() {
+                remove(event);
+            }, 0);
         },
         on: function(event, fn) {
             if (!callbacks[event]) {
