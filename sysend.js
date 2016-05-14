@@ -25,6 +25,14 @@ var sysend = (function() {
     // changed, and we want it if user send same object twice (before it will
     // be removed)
     var id = 0;
+    // we need to clean up localStorage if broadcast on unload
+    // because setTimeout will never fire, even setTimeout 0
+    var re = new RegExp('^' + uniq_prefix);
+    for(var key in localStorage) {
+        if (key.match(re)) {
+            localStorage.removeItem(key);
+        }
+    }
     function get(key) {
         return localStorage.getItem(uniq_prefix + key);
     }
