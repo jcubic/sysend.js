@@ -22,14 +22,17 @@ var sysend = (function() {
             localStorage.removeItem(key);
         }
     }
+	var event = false;
     function get(key) {
         return localStorage.getItem(uniq_prefix + key);
     }
     function set(key, value) {
         localStorage.setItem(uniq_prefix + key, value);
+		event = true;
     }
     function remove(key) {
         localStorage.removeItem(uniq_prefix + key);
+		event = false;
     }
     function to_json(input) {
         var obj = [id++];
@@ -45,17 +48,19 @@ var sysend = (function() {
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     window.addEventListener('storage', function(e) {
-        // get user key
-        var key = e.key.replace(new RegExp('^' + uniq_prefix), '');
-        if (callbacks[key]) {
-            var obj = JSON.parse(get(key));
-            if (obj) {
-                // don't call on remove
-                callbacks[key].forEach(function(fn) {
-                    fn(obj[1], key);
-                });
-            }
-        }
+		if (!event) { // Fix issue in IE that storage event is fired on same page where setItem was called
+			// get user key
+			var key = e.key.replace(new RegExp('^' + uniq_prefix), '');
+			if (callbacks[key]) {
+				var obj = JSON.parse(get(key));
+				if (obj) {
+					// don't call on remove
+					callbacks[key].forEach(function(fn) {
+						fn(obj[1], key);
+					});
+				}
+			}
+		}
     }, false);
     return {
         broadcast: function(event, message) {
