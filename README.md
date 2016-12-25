@@ -41,8 +41,8 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl><br/>
-Released under the MIT license <https://opensource.org/licenses/MIT>
+Copyright (C) 2014 [Jakub Jankiewicz](http://jcubic.pl)<br/>
+Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
 There is NO WARRANTY, to the extent permitted by law.
