@@ -29,6 +29,8 @@ window.onload = function() {
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
 
+The demo also use iframe proxy to send message to different domain
+
 ## API
 
 sysend object:
