@@ -7,7 +7,7 @@ can be serialized to JSON or just send empty notification.
 
 Tested on:
 
-GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)
+GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
 Windows 10 64bit: in IE11 and Edge 38
 
 ## Usage
