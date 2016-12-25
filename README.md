@@ -5,7 +5,10 @@ open in the same browser. They need to be in same domain. The library don't use
 any dependencies and use HTML5 LocalStorage API. You can send any object that
 can be serialized to JSON or just send empty notification.
 
-Tested on GNU/Linux in Chromium 34, FireFox 29, Opera 12.16 (64bit)
+Tested on:
+
+GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)
+Windows 10 64bit: in IE11 and Edge 38
 
 ## Usage
 
