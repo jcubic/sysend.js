@@ -7,6 +7,14 @@ can be serialized to JSON or just send empty notification.
 
 Tested on GNU/Linux in Chromium 34, FireFox 29, Opera 12.16 (64bit)
 
+## Instalation
+
+Include `sysend.js` file in your html, you can grab the file from npm:
+
+```
+npm install sysend
+```
+
 ## Usage
 
 ```javascript

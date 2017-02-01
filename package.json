@@ -1,0 +1,24 @@
+{
+  "name": "sysend",
+  "version": "1.0.0",
+  "description": "Send messages to other tabs/windows in the same origin and browser",
+  "main": "sysend.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcubic/sysend.js.git"
+  },
+  "keywords": [
+    "tabs",
+    "windows",
+    "events",
+    "browser"
+  ],
+  "author": "Jakub Jankiewicz <jcubic@onet.pl> (http://jcubic.pl/jakub-jankiewicz/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcubic/sysend.js/issues"
+  },
+  "homepage": "https://github.com/jcubic/sysend.js#readme"
+}
