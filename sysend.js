@@ -10,6 +10,7 @@
 var sysend = (function() {
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
+    var random_value = Math.random();
     // we use id because storage event is not executed if message was not
     // changed, and we want it if user send same object twice (before it will
     // be removed)
@@ -26,6 +27,10 @@ var sysend = (function() {
         return localStorage.getItem(uniq_prefix + key);
     }
     function set(key, value) {
+        // storage event is not fired when value is set first time
+        if (id == 0) {
+            localStorage.setItem(uniq_prefix + key, random_value);
+        }
         localStorage.setItem(uniq_prefix + key, value);
     }
     function remove(key) {
@@ -45,15 +50,20 @@ var sysend = (function() {
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     window.addEventListener('storage', function(e) {
-        // get user key
-        var key = e.key.replace(new RegExp('^' + uniq_prefix), '');
-        if (callbacks[key]) {
-            var obj = JSON.parse(get(key));
-            if (obj) {
-                // don't call on remove
-                callbacks[key].forEach(function(fn) {
-                    fn(obj[1], key);
-                });
+        // Fix issue in IE that storage event is fired on same page where setItem was called
+        if (e.key.match(re) && e.url != location.href) {
+            var key = e.key.replace(re, '');
+            if (callbacks[key]) {
+                var value = e.newValue || get(key);
+                if (value != random_value) {
+                    var obj = JSON.parse(value);
+                    if (obj) {
+                        // don't call on remove
+                        callbacks[key].forEach(function(fn) {
+                            fn(obj[1], key);
+                        });
+                    }
+                }
             }
         }
     }, false);

@@ -5,7 +5,10 @@ open in the same browser. They need to be in same domain. The library don't use
 any dependencies and use HTML5 LocalStorage API. You can send any object that
 can be serialized to JSON or just send empty notification.
 
-Tested on GNU/Linux in Chromium 34, FireFox 29, Opera 12.16 (64bit)
+Tested on:
+
+GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
+Windows 10 64bit: in IE11 and Edge 38
 
 ## Instalation
 
@@ -34,6 +37,8 @@ window.onload = function() {
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
 
+The demo also use iframe proxy to send message to different domain
+
 ## API
 
 sysend object:
@@ -44,8 +49,8 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl><br/>
-Released under the MIT license <https://opensource.org/licenses/MIT>
+Copyright (C) 2014 [Jakub Jankiewicz](http://jcubic.pl)<br/>
+Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
 There is NO WARRANTY, to the extent permitted by law.
