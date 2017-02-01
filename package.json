@@ -1,6 +1,6 @@
 {
   "name": "sysend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Send messages to other tabs/windows in the same origin and browser",
   "main": "sysend.js",
   "scripts": {
