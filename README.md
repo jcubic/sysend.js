@@ -18,6 +18,13 @@ Include `sysend.js` file in your html, you can grab the file from npm:
 npm install sysend
 ```
 
+or bower
+
+
+```
+bower install sysend
+```
+
 ## Usage
 
 ```javascript
