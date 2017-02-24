@@ -13,6 +13,8 @@
     "tabs",
     "windows",
     "events",
+    "callback",
+    "notifications",
     "browser"
   ],
   "author": "Jakub Jankiewicz <jcubic@onet.pl> (http://jcubic.pl/jakub-jankiewicz/)",

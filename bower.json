@@ -1,0 +1,25 @@
+{
+  "name": "sysend",
+  "description": "Send messages to other tabs/windows in the same origin and browser",
+  "main": "sysend.js",
+  "authors": [
+    "Jakub Jankiewicz <jcubic@onet.pl> (http://jcubic.pl/jakub-jankiewicz/)"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "tabs",
+    "windows",
+    "events",
+    "callback",
+    "notifications",
+    "browser"
+  ],
+  "homepage": "https://github.com/jcubic/sysend.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
