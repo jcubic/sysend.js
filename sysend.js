@@ -50,8 +50,9 @@ var sysend = (function() {
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     window.addEventListener('storage', function(e) {
-        // Fix issue in IE that storage event is fired on same page where setItem was called
-        if (e.key.match(re) && e.url != location.href) {
+        if ((e.key.match(re) && !document.documentMode) ||
+            // Fix issue in IE that storage event is fired on same page where setItem was called
+            (e.key.match(re) && e.url !== location.href && document.documentMode)) {
             var key = e.key.replace(re, '');
             if (callbacks[key]) {
                 var value = e.newValue || get(key);
