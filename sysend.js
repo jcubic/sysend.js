@@ -51,7 +51,7 @@ var sysend = (function() {
     var callbacks = {};
     window.addEventListener('storage', function(e) {
         // Fix issue in IE that storage event is fired on same page where setItem was called
-        if (e.key.match(re) && e.url != location.href) {
+        if (e.key.match(re)) {
             var key = e.key.replace(re, '');
             if (callbacks[key]) {
                 var value = e.newValue || get(key);
