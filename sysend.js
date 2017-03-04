@@ -15,6 +15,9 @@ var sysend = (function() {
     // changed, and we want it if user send same object twice (before it will
     // be removed)
     var id = 0;
+    // Fix issue in IE that storage event is fired on same page where setItem
+    // was called
+    var origin_page;
     // we need to clean up localStorage if broadcast on unload
     // because setTimeout will never fire, even setTimeout 0
     var re = new RegExp('^' + uniq_prefix);
@@ -50,8 +53,7 @@ var sysend = (function() {
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     window.addEventListener('storage', function(e) {
-        // Fix issue in IE that storage event is fired on same page where setItem was called
-        if (e.key.match(re) && e.url != location.href) {
+        if (e.key.match(re) && !origin_page) {
             var key = e.key.replace(re, '');
             if (callbacks[key]) {
                 var value = e.newValue || get(key);
@@ -66,9 +68,11 @@ var sysend = (function() {
                 }
             }
         }
+        origin_page = false;
     }, false);
     return {
         broadcast: function(event, message) {
+            origin_page = true;
             set(event, to_json(message));
             // clean up localstorage
             setTimeout(function() {
