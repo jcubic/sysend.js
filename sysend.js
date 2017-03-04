@@ -7,7 +7,15 @@
  *  The idea for this implementation came from this StackOverflow question:
  *  http://stackoverflow.com/q/24182409/387194
  */
-var sysend = (function() {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['sysend'], factory);
+    } else if (typeof exports === 'object') {
+        module.exports = factory();
+    } else {
+        root.sysend = factory();
+    }
+})(typeof window !== "undefined" ? window : this, function() {
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
     var random_value = Math.random();
@@ -99,4 +107,4 @@ var sysend = (function() {
             }
         }
     };
-})();
+});
