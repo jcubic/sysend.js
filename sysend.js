@@ -59,12 +59,14 @@
     }
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
+    var index = 0;
     window.addEventListener('storage', function(e) {
-        if (e.key.match(re)) {
+        // prevent event to be executed on remove in IE
+        if (e.key.match(re) && index++ % 2 === 0) {
             var key = e.key.replace(re, '');
             if (callbacks[key]) {
                 var value = e.newValue || get(key);
-                if (value != random_value) {
+                if (value && value != random_value) {
                     var obj = JSON.parse(value);
                     if (obj && obj[1] != random_value) {
                         // don't call on remove
@@ -75,7 +77,6 @@
                 }
             }
         }
-        origin_page = false;
     }, false);
     return {
         broadcast: function(event, message) {
