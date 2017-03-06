@@ -8,7 +8,8 @@ can be serialized to JSON or just send empty notification.
 Tested on:
 
 GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
-Windows 10 64bit: in IE11 and Edge 38
+Windows 10 64bit: in IE11 and Edge 38, Chrome 56, Firefox 51<br/>
+MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 
 ## Instalation
 
@@ -44,7 +45,7 @@ window.onload = function() {
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
 
-The demo also use iframe proxy to send message to different domain
+The demo also use iframe proxy to send message to different domain (it seems that it don't work in Firefox)
 
 ## API
 
