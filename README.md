@@ -1,3 +1,6 @@
+[![npm](https://img.shields.io/badge/npm-1.1.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.1.0-yellow.svg)
+
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
