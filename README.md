@@ -29,6 +29,9 @@ or bower
 bower install sysend
 ```
 
+you can also get it from [unpkg.com CDN](https://unpkg.com/sysend)
+
+
 ## Usage
 
 ```javascript
@@ -48,7 +51,7 @@ window.onload = function() {
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
 
-The demo also use iframe proxy to send message to different domain (it seems that it don't work in Firefox)
+The demo also use iframe proxy to send message to different domain (on firefox you need to add CORS for the iframe see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
 
 ## API
 
