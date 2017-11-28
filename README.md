@@ -1,8 +1,6 @@
 [![npm](https://img.shields.io/badge/npm-1.1.0-blue.svg)](https://www.npmjs.com/package/sysend)
 ![bower](https://img.shields.io/badge/bower-1.1.0-yellow.svg)
 
-<a href="https://app.codesponsor.io/link/mm9ExaTRnnyn4TH8MFkSL6zG/jcubic/sysend.js" rel="nofollow"><img src="https://app.codesponsor.io/embed/mm9ExaTRnnyn4TH8MFkSL6zG/jcubic/sysend.js.svg" style="width: 888px; height: 68px;" alt="Sponsor" /></a>
-
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
