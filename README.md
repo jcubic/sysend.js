@@ -1,12 +1,15 @@
-[![npm](https://img.shields.io/badge/npm-1.1.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.1.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.2.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.2.0-yellow.svg)
 
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
 open in the same browser. They need to be in same domain. The library don't use
-any dependencies and use HTML5 LocalStorage API. You can send any object that
-can be serialized to JSON or just send empty notification.
+any dependencies and use HTML5 LocalStorage API or BroadcastChannel API.
+If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
+then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
+(it will not be serialized to string). You can also send empty notification.
+
 
 Tested on:
 

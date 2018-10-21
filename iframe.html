@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="Description" content=""/>
+    <link rel="shortcut icon" href=""/>
+    <!--[if IE]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="https://jcubic.pl/sysend.js"></script>
+    <script>
+     window.onmessage = function(e) {
+         document.getElementsByTagName('pre')[0].innerHTML +=  e.origin + '\n';
+         if (!e.origin.match(/jcubic\.pl$/) && !e.origin.match(/https?:\/\/localhost$/) && !e.origin.match(/codepen.io/)) {
+             return;
+         }
+         var payload = JSON.parse(e.data);
+         sysend.broadcast(payload.key, payload.data);
+         document.getElementsByTagName('pre')[0].innerHTML += JSON.stringify(payload.data) + '\n';
+     };
+    </script>
+</head>
+<body>
+<pre></pre>
+</body>
+</html>

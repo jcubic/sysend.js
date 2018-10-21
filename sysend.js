@@ -1,12 +1,14 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs
- *  Copyright (C) 2014 Jakub Jankiewicz <http://jcubic.pl>
+ *  sysend.js - send messages between browser windows/tabs version 1.2.0
  *
+ *  Copyright (C) 2014-2018 Jakub Jankiewicz <http://jcubic.pl/me>
  *  Released under the MIT license
  *
- *  The idea for this implementation came from this StackOverflow question:
+ *  The idea for localStorage implementation came from this StackOverflow question:
  *  http://stackoverflow.com/q/24182409/387194
+ *
  */
+/* global define, module, exports, localStorage, setTimeout */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(['sysend'], factory);
@@ -60,31 +62,50 @@
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     var index = 0;
-    window.addEventListener('storage', function(e) {
-        // prevent event to be executed on remove in IE
-        if (e.key.match(re) && index++ % 2 === 0) {
-            var key = e.key.replace(re, '');
-            if (callbacks[key]) {
-                var value = e.newValue || get(key);
-                if (value && value != random_value) {
-                    var obj = JSON.parse(value);
-                    if (obj && obj[1] != random_value) {
-                        // don't call on remove
-                        callbacks[key].forEach(function(fn) {
-                            fn(obj[2], key);
-                        });
+    var channel;
+    if (typeof window.BroadcastChannel === 'function') {
+        channel = new window.BroadcastChannel(uniq_prefix);
+        channel.addEventListener('message', function(event) {
+            if (event.target.name === uniq_prefix) {
+                var key = event.data && event.data.name;
+                if (callbacks[key]) {
+                    callbacks[key].forEach(function(fn) {
+                        fn(event.data.data, key);
+                    });
+                }
+            }
+        });
+    } else {
+        window.addEventListener('storage', function(e) {
+            // prevent event to be executed on remove in IE
+            if (e.key.match(re) && index++ % 2 === 0) {
+                var key = e.key.replace(re, '');
+                if (callbacks[key]) {
+                    var value = e.newValue || get(key);
+                    if (value && value != random_value) {
+                        var obj = JSON.parse(value);
+                        if (obj && obj[1] != random_value) {
+                            // don't call on remove
+                            callbacks[key].forEach(function(fn) {
+                                fn(obj[2], key);
+                            });
+                        }
                     }
                 }
             }
-        }
-    }, false);
+        }, false);
+    }
     return {
         broadcast: function(event, message) {
-            set(event, to_json(message));
-            // clean up localstorage
-            setTimeout(function() {
-                remove(event);
-            }, 0);
+            if (channel) {
+                channel.postMessage({name: event, data: message});
+            } else {
+                set(event, to_json(message));
+                // clean up localstorage
+                setTimeout(function() {
+                    remove(event);
+                }, 0);
+            }
         },
         on: function(event, fn) {
             if (!callbacks[event]) {

@@ -12,6 +12,7 @@ window.onload = function() {
     }
     sysend.on('foo', function(obj) {
         message('just get event "foo" with message: ' + obj.message);
+        console.log(obj.message);
     });
     sysend.on('notification', function(obj) {
         if (typeof obj == 'undefined') {
