@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.3.1
+ *  sysend.js - send messages between browser windows/tabs version 1.3.2
  *
  *  Copyright (C) 2014-2018 Jakub Jankiewicz <http://jcubic.pl/me>
  *  Released under the MIT license
@@ -59,6 +59,13 @@
     function from_json(json) {
         return JSON.parse(json);
     }
+    var host = (function() {
+        var a = document.createElement('a');
+        return function(url) {
+            a.href = url;
+            return a.host;
+        };
+    })();
     function send_to_iframes(key, data) {
         // propagate events to iframes
         iframes.forEach(function(iframe) {
@@ -137,9 +144,10 @@
             send_to_iframes(event, message);
         },
         proxy: function(url) {
-            if (typeof url === 'string' && !url.match(new RegExp(window.location.host, 'i'))) {
+            if (typeof url === 'string' && host(url) !== window.location.host) {
                 var iframe = document.createElement('iframe');
-                iframe.style.visibility = 'hidden';
+                iframe.style.width = iframe.style.height = 0;
+                iframe.style.border = 'none';
                 var proxy_url = url;
                 if (!url.match(/\.html$/)) {
                     proxy_url = url.replace(/\/$/, '') + '/proxy.html';
