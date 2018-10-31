@@ -1,10 +1,11 @@
-[![npm](https://img.shields.io/badge/npm-1.2.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.2.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.3.1-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.3.1-yellow.svg)
+![downloads](https://img.shields.io/npm/dt/sysend.svg)
 
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
-open in the same browser. They need to be in same domain. The library don't use
+open in the same browser. It also support Cross-Domain comunication. The library don't use
 any dependencies and use HTML5 LocalStorage API or BroadcastChannel API.
 If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
 then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
@@ -32,7 +33,11 @@ or bower
 bower install sysend
 ```
 
-you can also get it from [unpkg.com CDN](https://unpkg.com/sysend)
+you can also get it from unpkg.com CDN:
+
+```
+https://unpkg.com/sysend
+```
 
 
 ## Usage
@@ -50,23 +55,31 @@ window.onload = function() {
 };
 ```
 
+If you want to add support for Cross-Domain communiation you need to call proxy method with target domain:
+
+```javascript
+sysend.proxy('https://jcubic.pl');
+sysend.proxy('https://terminal.jcubic.pl');
+```
+
+on firefox you need to add CORS for the iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
+
 ## Demo
 
-Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows
-
-The demo also use iframe proxy to send message to different domain (on firefox you need to add CORS for the iframe see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
+Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows.
 
 ## API
 
 sysend object:
 
-* on(name, callback)  - callback(object, name) - add event of specified name
+* on(name, callback) - callback(object, name) - add event of specified name
 * off(name [, callback]) - remove callback
 * broadcast(name [, object]) - send object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without object
+* proxy(url) - create iframe proxy for different domain, the targer domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
 
 ## License
 
-Copyright (C) 2014-2017 [Jakub Jankiewicz](http://jcubic.pl)<br/>
+Copyright (C) 2014-2018 [Jakub Jankiewicz](http://jcubic.pl)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>

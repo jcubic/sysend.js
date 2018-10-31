@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.2.0
+ *  sysend.js - send messages between browser windows/tabs version 1.3.1
  *
  *  Copyright (C) 2014-2018 Jakub Jankiewicz <http://jcubic.pl/me>
  *  Released under the MIT license
@@ -59,8 +59,20 @@
     function from_json(json) {
         return JSON.parse(json);
     }
+    function send_to_iframes(key, data) {
+        // propagate events to iframes
+        iframes.forEach(function(iframe) {
+            var payload = {
+              name: uniq_prefix,
+              key: key,
+              data: data
+            };
+            iframe.window.postMessage(JSON.stringify(payload), "*");
+        });
+    }
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
+    var iframes = [];
     var index = 0;
     var channel;
     if (typeof window.BroadcastChannel === 'function') {
@@ -95,6 +107,22 @@
             }
         }, false);
     }
+    // ref: https://stackoverflow.com/a/326076/387194
+    function is_iframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+    if (is_iframe()) {
+      window.addEventListener('message', function(e) {
+          var payload = JSON.parse(e.data);
+          if (payload.name === uniq_prefix) {
+              sysend.broadcast(payload.key, payload.data);
+          }
+      });
+    }
     return {
         broadcast: function(event, message) {
             if (channel) {
@@ -105,6 +133,35 @@
                 setTimeout(function() {
                     remove(event);
                 }, 0);
+            }
+            send_to_iframes(event, message);
+        },
+        proxy: function(url) {
+            if (typeof url === 'string' && !url.match(new RegExp(window.location.host, 'i'))) {
+                var iframe = document.createElement('iframe');
+                iframe.style.visibility = 'hidden';
+                var proxy_url = url;
+                if (!url.match(/\.html$/)) {
+                    proxy_url = url.replace(/\/$/, '') + '/proxy.html';
+                }
+                iframe.addEventListener('error', function handler() {
+                    setTimeout(function() {
+                        throw new Error('html proxy file not found on "' + url + '" url');
+                    }, 0);
+                    iframe.removeEventListener('error', handler);
+                });
+                iframe.addEventListener('load', function handler() {
+                    var win;
+                    try {
+                        win = iframe.contentWindow;
+                    } catch(e) {
+                        win = iframe.contentWindow;
+                    }
+                    iframes.push({window: win, node: iframe});
+                    iframe.removeEventListener('load', handler);
+                });
+                document.body.appendChild(iframe);
+                iframe.src = proxy_url;
             }
         },
         on: function(event, fn) {
