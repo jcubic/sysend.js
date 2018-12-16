@@ -1,5 +1,5 @@
-[![npm](https://img.shields.io/badge/npm-1.3.2-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.3.2-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.3.3-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.3.3-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 
 ## sysend.js
