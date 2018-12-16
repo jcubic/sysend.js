@@ -55,14 +55,15 @@ window.onload = function() {
 };
 ```
 
-If you want to add support for Cross-Domain communiation you need to call proxy method with target domain:
+If you want to add support for Cross-Domain communication you need to call proxy method with url on target domain
+that have [proxy.html file](https://github.com/jcubic/sysend.js/blob/master/proxy.html).
 
 ```javascript
 sysend.proxy('https://jcubic.pl');
 sysend.proxy('https://terminal.jcubic.pl');
 ```
 
-on firefox you need to add CORS for the iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
+on Firefox you need to add **CORS** for the proxy.html that will be loaded into iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
 
 ## Demo
 
