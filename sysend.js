@@ -1,7 +1,7 @@
 /**@license
  *  sysend.js - send messages between browser windows/tabs version 1.3.3
  *
- *  Copyright (C) 2014-2018 Jakub Jankiewicz <http://jcubic.pl/me>
+ *  Copyright (C) 2014-2018 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
  *
  *  The idea for localStorage implementation came from this StackOverflow question:

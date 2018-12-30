@@ -80,7 +80,7 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014-2018 [Jakub Jankiewicz](http://jcubic.pl)<br/>
+Copyright (C) 2014-2018 [Jakub T. Jankiewicz](http://jcubic.pl)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
