@@ -9,7 +9,9 @@ open in the same browser. It also support Cross-Domain comunication. The library
 any dependencies and use HTML5 LocalStorage API or BroadcastChannel API.
 If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
 then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
-(it will not be serialized to string). You can also send empty notification.
+(it will not be serialized to string but the values are limited to the ones that can be copied by
+the [structured cloning algorithm](https://html.spec.whatwg.org/multipage/structured-data.html#structured-clone)).
+You can also send empty notification.
 
 
 Tested on:
