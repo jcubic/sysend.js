@@ -5,8 +5,8 @@
 ## sysend.js
 
 sysend.js is small library that allow to send message between pages that are
-open in the same browser. It also support Cross-Domain comunication. The library don't use
-any dependencies and use HTML5 LocalStorage API or BroadcastChannel API.
+open in the same browser. It also support Cross-Domain comunication. The library doesn't have
+any dependencies and uses the HTML5 LocalStorage API or BroadcastChannel API.
 If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
 then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
 (it will not be serialized to string but the values are limited to the ones that can be copied by
