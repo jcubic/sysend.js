@@ -1,6 +1,7 @@
 [![npm](https://img.shields.io/badge/npm-1.3.3-blue.svg)](https://www.npmjs.com/package/sysend)
 ![bower](https://img.shields.io/badge/bower-1.3.3-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjcubic%2Fsysend.js.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjcubic%2Fsysend.js?ref=badge_shield)
 
 ## sysend.js
 
@@ -87,3 +88,6 @@ Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
 There is NO WARRANTY, to the extent permitted by law.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjcubic%2Fsysend.js.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjcubic%2Fsysend.js?ref=badge_large)
