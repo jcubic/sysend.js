@@ -4,14 +4,14 @@
 
 ## sysend.js
 
-sysend.js is small library that allow to send message between pages that are
-open in the same browser. It also support Cross-Domain comunication. The library doesn't have
+sysend.js is a small library that allows to send messages between pages that are
+open in the same browser. It also supports Cross-Domain communication. The library doesn't have
 any dependencies and uses the HTML5 LocalStorage API or BroadcastChannel API.
 If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
 then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
 (it will not be serialized to string but the values are limited to the ones that can be copied by
 the [structured cloning algorithm](https://html.spec.whatwg.org/multipage/structured-data.html#structured-clone)).
-You can also send empty notification.
+You can also send empty notifications.
 
 
 Tested on:
@@ -20,7 +20,7 @@ GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
 Windows 10 64bit: in IE11 and Edge 38, Chrome 56, Firefox 51<br/>
 MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 
-## Instalation
+## Installation
 
 Include `sysend.js` file in your html, you can grab the file from npm:
 
@@ -57,7 +57,7 @@ window.onload = function() {
 };
 ```
 
-If you want to add support for Cross-Domain communication you need to call proxy method with url on target domain
+If you want to add support for Cross-Domain communication, you need to call proxy method with url on target domain
 that have [proxy.html file](https://github.com/jcubic/sysend.js/blob/master/proxy.html).
 
 ```javascript
