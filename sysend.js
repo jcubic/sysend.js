@@ -124,7 +124,7 @@
     }
     if (is_iframe()) {
       window.addEventListener('message', function(e) {
-          var payload
+          var payload;
           try {
               payload = JSON.parse(e.data);
           } finally {
