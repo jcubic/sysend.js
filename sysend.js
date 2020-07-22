@@ -124,17 +124,15 @@
     }
     if (is_iframe()) {
       window.addEventListener('message', function(e) {
-          if (typeof e.data !== 'string') return;
-          var isValidJSON = false;
-          var payload;
+          var payload
           try {
               payload = JSON.parse(e.data);
-              isValidJSON = true;
           } catch (error) {
-              isValidJSON = false;
-          }
-          if (isValidJSON && payload.name === uniq_prefix) {
-              sysend.broadcast(payload.key, payload.data);
+              payload = {};
+          } finally {
+              if (payload && payload.name === uniq_prefix) {
+                  sysend.broadcast(payload.key, payload.data);
+              }
           }
       });
     }
