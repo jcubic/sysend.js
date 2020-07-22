@@ -127,8 +127,6 @@
           var payload
           try {
               payload = JSON.parse(e.data);
-          } catch (error) {
-              payload = {};
           } finally {
               if (payload && payload.name === uniq_prefix) {
                   sysend.broadcast(payload.key, payload.data);
