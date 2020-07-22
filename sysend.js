@@ -124,8 +124,16 @@
     }
     if (is_iframe()) {
       window.addEventListener('message', function(e) {
-          var payload = JSON.parse(e.data);
-          if (payload.name === uniq_prefix) {
+          if (typeof e.data !== 'string') return;
+          var isValidJSON = false;
+          var payload;
+          try {
+              payload = JSON.parse(e.data);
+              isValidJSON = true;
+          } catch (error) {
+              isValidJSON = false;
+          }
+          if (isValidJSON && payload.name === uniq_prefix) {
               sysend.broadcast(payload.key, payload.data);
           }
       });
