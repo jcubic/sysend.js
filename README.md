@@ -1,8 +1,10 @@
-[![npm](https://img.shields.io/badge/npm-1.3.3-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.3.3-yellow.svg)
+![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)
+
+[![npm](https://img.shields.io/badge/npm-1.3.4-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.3.4-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 
-## sysend.js
+# Send messages between browser tabs
 
 sysend.js is a small library that allows to send messages between pages that are
 open in the same browser. It also supports Cross-Domain communication. The library doesn't have
@@ -41,6 +43,13 @@ you can also get it from unpkg.com CDN:
 https://unpkg.com/sysend
 ```
 
+or
+
+```
+https://cdn.jsdelivr.net/npm/sysend
+```
+
+jsDelivr minified the file.
 
 ## Usage
 
@@ -82,7 +91,7 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014-2018 [Jakub T. Jankiewicz](http://jcubic.pl)<br/>
+Copyright (C) 2014-2020 [Jakub T. Jankiewicz](http://jcubic.pl)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
