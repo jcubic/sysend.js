@@ -20,6 +20,7 @@
 })(typeof window !== "undefined" ? window : this, function() {
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
+    var prefix_re = new RegExp(uniq_prefix);
     var random_value = Math.random();
     // we use id because storage event is not executed if message was not
     // changed, and we want it if user send same object twice (before it will
@@ -124,10 +125,15 @@
     }
     if (is_iframe()) {
       window.addEventListener('message', function(e) {
-          if (typeof e.data === 'string') {
-              var payload = JSON.parse(e.data);
-              if (payload && payload.name === uniq_prefix) {
-                  sysend.broadcast(payload.key, payload.data);
+          if (typeof e.data === 'string' && e.data.match(prefix_re)) {
+              try {
+                  var payload = JSON.parse(e.data);
+                  if (payload && payload.name === uniq_prefix) {
+                      sysend.broadcast(payload.key, payload.data);
+                  }
+              } catch(e) {
+                  // ignore wrong JSON, the message don't came from Sysend
+                  // even that the string have unix_prefix, this is just in case
               }
           }
       });
