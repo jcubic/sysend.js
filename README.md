@@ -1,4 +1,4 @@
-![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)
+[![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)](https://github.com/jcubic/sysend.js)
 
 [![npm](https://img.shields.io/badge/npm-1.3.5-blue.svg)](https://www.npmjs.com/package/sysend)
 ![bower](https://img.shields.io/badge/bower-1.3.5-yellow.svg)
@@ -91,7 +91,7 @@ sysend object:
 
 ## License
 
-Copyright (C) 2014-2020 [Jakub T. Jankiewicz](http://jcubic.pl)<br/>
+Copyright (C) 2014-2021 [Jakub T. Jankiewicz](http://jcubic.pl/me)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
