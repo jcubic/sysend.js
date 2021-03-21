@@ -1,21 +1,20 @@
-[![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)](https://github.com/jcubic/sysend.js)
+![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)
 
 [![npm](https://img.shields.io/badge/npm-1.3.5-blue.svg)](https://www.npmjs.com/package/sysend)
 ![bower](https://img.shields.io/badge/bower-1.3.5-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
-# Send messages between browser tabs
+# [Send messages between browser tabs](https://github.com/jcubic/sysend.js/)
 
 sysend.js is a small library that allows to send messages between pages that are
 open in the same browser. It also supports Cross-Domain communication. The library doesn't have
 any dependencies and uses the HTML5 LocalStorage API or BroadcastChannel API.
 If your browser don't support BroadcastChannel (see [Can I Use](https://caniuse.com/#feat=broadcastchannel))
-then you can send any object that can be serialized to JSON with BroadcastChannel you can send any object
+then you can send any object that can be serialized to JSON. With BroadcastChannel you can send any object
 (it will not be serialized to string but the values are limited to the ones that can be copied by
 the [structured cloning algorithm](https://html.spec.whatwg.org/multipage/structured-data.html#structured-clone)).
 You can also send empty notifications.
-
 
 Tested on:
 
