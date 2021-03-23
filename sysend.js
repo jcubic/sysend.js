@@ -22,126 +22,26 @@
     var uniq_prefix = '___sysend___';
     var prefix_re = new RegExp(uniq_prefix);
     var random_value = Math.random();
-    // we use id because storage event is not executed if message was not
-    // changed, and we want it if user send same object twice (before it will
-    // be removed)
-    var id = 0;
-    // we need to clean up localStorage if broadcast on unload
-    // because setTimeout will never fire, even setTimeout 0
-    var re = new RegExp('^' + uniq_prefix);
-    for(var key in localStorage) {
-        if (key.match(re)) {
-            localStorage.removeItem(key);
-        }
-    }
-    function get(key) {
-        return localStorage.getItem(uniq_prefix + key);
-    }
-    function set(key, value) {
-        // storage event is not fired when value is set first time
-        if (id == 0) {
-            localStorage.setItem(uniq_prefix + key, random_value);
-        }
-        localStorage.setItem(uniq_prefix + key, value);
-    }
-    function remove(key) {
-        localStorage.removeItem(uniq_prefix + key);
-    }
-    function to_json(input) {
-        // save random_value in storage to fix issue in IE that storage event
-        // is fired on same page where setItem was called
-        var obj = [id++, random_value];
-        // undefined in array get stringified as null
-        if (typeof input != 'undefined') {
-            obj.push(input);
-        }
-        return JSON.stringify(obj);
-    }
-    function from_json(json) {
-        return JSON.parse(json);
-    }
-    var host = (function() {
-        var a = document.createElement('a');
-        return function(url) {
-            a.href = url;
-            return a.host;
-        };
-    })();
-    function send_to_iframes(key, data) {
-        // propagate events to iframes
-        iframes.forEach(function(iframe) {
-            var payload = {
-              name: uniq_prefix,
-              key: key,
-              data: data
-            };
-            iframe.window.postMessage(JSON.stringify(payload), "*");
-        });
-    }
+    var serializer = {}, serialize, deserialize;
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     var iframes = [];
     var index = 0;
     var channel;
-    if (typeof window.BroadcastChannel === 'function') {
-        channel = new window.BroadcastChannel(uniq_prefix);
-        channel.addEventListener('message', function(event) {
-            if (event.target.name === uniq_prefix) {
-                var key = event.data && event.data.name;
-                if (callbacks[key]) {
-                    callbacks[key].forEach(function(fn) {
-                        fn(event.data.data, key);
-                    });
-                }
-            }
-        });
-    } else {
-        window.addEventListener('storage', function(e) {
-            // prevent event to be executed on remove in IE
-            if (e.key.match(re) && index++ % 2 === 0) {
-                var key = e.key.replace(re, '');
-                if (callbacks[key]) {
-                    var value = e.newValue || get(key);
-                    if (value && value != random_value) {
-                        var obj = JSON.parse(value);
-                        if (obj && obj[1] != random_value) {
-                            // don't call on remove
-                            callbacks[key].forEach(function(fn) {
-                                fn(obj[2], key);
-                            });
-                        }
-                    }
-                }
-            }
-        }, false);
-    }
-    // ref: https://stackoverflow.com/a/326076/387194
-    function is_iframe() {
-        try {
-            return window.self !== window.top;
-        } catch (e) {
-            return true;
-        }
-    }
-    if (is_iframe()) {
-      window.addEventListener('message', function(e) {
-          if (typeof e.data === 'string' && e.data.match(prefix_re)) {
-              try {
-                  var payload = JSON.parse(e.data);
-                  if (payload && payload.name === uniq_prefix) {
-                      sysend.broadcast(payload.key, payload.data);
-                  }
-              } catch(e) {
-                  // ignore wrong JSON, the message don't came from Sysend
-                  // even that the string have unix_prefix, this is just in case
-              }
-          }
-      });
-    }
+    // we use id because storage event is not executed if message was not
+    // changed, and we want it if user send same object twice (before it will
+    // be removed)
+    var id = 0;
+    // -------------------------------------------------------------------------
+    init();
+    // -------------------------------------------------------------------------
+    var serialize = make_process(serializer, 'to');
+    var unserialize = make_process(serializer, 'from');
+    // -------------------------------------------------------------------------
     return {
         broadcast: function(event, message) {
             if (channel) {
-                channel.postMessage({name: event, data: message});
+                channel.postMessage({name: event, data: serialize(message)});
             } else {
                 set(event, to_json(message));
                 // clean up localstorage
@@ -150,6 +50,14 @@
                 }, 0);
             }
             send_to_iframes(event, message);
+        },
+        serializer: function(to, from) {
+            if (typeof to !== 'function' || typeof from !== 'function') {
+                throw new Error('sysend::serializer: Invalid argument, expecting' +
+                                ' function');
+            }
+            serializer.to = to;
+            serializer.from = from;
         },
         proxy: function(url) {
             if (typeof url === 'string' && host(url) !== window.location.host) {
@@ -162,7 +70,8 @@
                 }
                 iframe.addEventListener('error', function handler() {
                     setTimeout(function() {
-                        throw new Error('html proxy file not found on "' + url + '" url');
+                        throw new Error('html proxy file not found on "' + url +
+                                        '" url');
                     }, 0);
                     iframe.removeEventListener('error', handler);
                 });
@@ -200,4 +109,158 @@
             }
         }
     };
+    // -------------------------------------------------------------------------
+    function get(key) {
+        return localStorage.getItem(uniq_prefix + key);
+    }
+    // -------------------------------------------------------------------------
+    function set(key, value) {
+        // storage event is not fired when value is set first time
+        if (id == 0) {
+            localStorage.setItem(uniq_prefix + key, random_value);
+        }
+        localStorage.setItem(uniq_prefix + key, value);
+    }
+    // -------------------------------------------------------------------------
+    function remove(key) {
+        localStorage.removeItem(uniq_prefix + key);
+    }
+    // -------------------------------------------------------------------------
+    function make_process(object, prop) {
+        var labels = {
+            from: 'Unserialize',
+            to: 'Serialize'
+        };
+        var prefix_message = labels[prop] + ' Error: ';
+        return function(data) {
+            var fn = object[prop];
+            try {
+                if (fn) {
+                    return fn(data);
+                }
+                return data;
+            } catch (e) {
+                console.warn(prefix_message + e.message);
+            }
+        };
+    }
+    // -------------------------------------------------------------------------
+    // ref: https://stackoverflow.com/a/326076/387194
+    // -------------------------------------------------------------------------
+    function is_iframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+    // -------------------------------------------------------------------------
+    function send_to_iframes(key, data) {
+        // propagate events to iframes
+        iframes.forEach(function(iframe) {
+            var payload = {
+              name: uniq_prefix,
+              key: key,
+              data: data
+            };
+            iframe.window.postMessage(JSON.stringify(payload), "*");
+        });
+    }
+    // -------------------------------------------------------------------------
+    function to_json(input) {
+        // save random_value in storage to fix issue in IE that storage event
+        // is fired on same page where setItem was called
+        var obj = [id++, random_value];
+        // undefined in array get stringified as null
+        if (typeof input != 'undefined') {
+            obj.push(input);
+        }
+        var data = serialize(obj);
+        if (data === obj) {
+            return JSON.stringify(obj);
+        }
+        return data;
+    }
+    // -------------------------------------------------------------------------
+    function from_json(json) {
+        var result = unserialize(json);
+        if (result === json) {
+            return JSON.parse(json);
+        }
+        return result;
+    }
+    // -------------------------------------------------------------------------
+    var host = (function() {
+        if (typeof URL !== 'undefined') {
+            return function(url) {
+                url = new URL(url);
+                return url.host;
+            };
+        }
+        var a = document.createElement('a');
+        return function(url) {
+            a.href = url;
+            return a.host;
+        };
+    })();
+    // -------------------------------------------------------------------------
+    function invoke(key, data) {
+        callbacks[key].forEach(function(fn) {
+            fn(data, key);
+        });
+    }
+    // -------------------------------------------------------------------------
+    function init() {
+        // we need to clean up localStorage if broadcast called on unload
+        // because setTimeout will never fire, even setTimeout 0
+        var re = new RegExp('^' + uniq_prefix);
+        for(var key in localStorage) {
+            if (key.match(re)) {
+                localStorage.removeItem(key);
+            }
+        }
+        if (typeof window.BroadcastChannel === 'function') {
+            channel = new window.BroadcastChannel(uniq_prefix);
+            channel.addEventListener('message', function(event) {
+                if (event.target.name === uniq_prefix) {
+                    var key = event.data && event.data.name;
+                    if (callbacks[key]) {
+                        invoke(key, unserialize(event.data.data));
+                    }
+                }
+            });
+        } else {
+            window.addEventListener('storage', function(e) {
+                // prevent event to be executed on remove in IE
+                if (e.key.match(re) && index++ % 2 === 0) {
+                    var key = e.key.replace(re, '');
+                    if (callbacks[key]) {
+                        var value = e.newValue || get(key);
+                        if (value && value != random_value) {
+                            var obj = from_json(value);
+                            // don't call on remove
+                            if (obj && obj[1] != random_value) {
+                                invoke(key, obj[2]);
+                            }
+                        }
+                    }
+                }
+            }, false);
+        }
+        if (is_iframe()) {
+          window.addEventListener('message', function(e) {
+              if (typeof e.data === 'string' && e.data.match(prefix_re)) {
+                  try {
+                      var payload = JSON.parse(e.data);
+                      if (payload && payload.name === uniq_prefix) {
+                          sysend.broadcast(payload.key, unserialize(payload.data));
+                      }
+                  } catch(e) {
+                      // ignore wrong JSON, the message don't came from Sysend
+                      // even that the string have unix_prefix, this is just in case
+                  }
+              }
+          });
+        }
+    }
 });

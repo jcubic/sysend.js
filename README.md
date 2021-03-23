@@ -54,7 +54,6 @@ jsDelivr minified the file.
 ## Usage
 
 ```javascript
-
 window.onload = function() {
     sysend.on('foo', function(message) {
         console.log(message);
@@ -76,6 +75,17 @@ sysend.proxy('https://terminal.jcubic.pl');
 
 on Firefox you need to add **CORS** for the proxy.html that will be loaded into iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
 
+if you want to send custom data you can use serializer (new in 1.4.0).
+Example serializer can be [json-dry](https://github.com/11ways/json-dry).
+
+```javascript
+sysend.serializer(function(data) {
+    return Dry.stringify(data);
+}, function(string) {
+    return Dry.parse(string);
+});
+````
+
 ## Demo
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows.
@@ -84,10 +94,11 @@ Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows.
 
 sysend object:
 
-* on(name, callback) - callback(object, name) - add event of specified name
-* off(name [, callback]) - remove callback
-* broadcast(name [, object]) - send object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without object
-* proxy(url) - create iframe proxy for different domain, the targer domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
+* `on(name, callback)` - `callback(object, name)` - add event of specified name
+* `off(name [, callback])` - remove callback
+* `broadcast(name [, object])` - send object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without object
+* `proxy(url)` - create iframe proxy for different domain, the targer domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
+* `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0)
 
 ## License
 
