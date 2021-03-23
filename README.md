@@ -88,7 +88,7 @@ sysend.serializer(function(data) {
 
 ## Demo
 
-Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows.
+Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows (there is also link to other domain).
 
 ## API
 
