@@ -38,7 +38,7 @@
     var serialize = make_process(serializer, 'to');
     var unserialize = make_process(serializer, 'from');
     // -------------------------------------------------------------------------
-    return {
+    var sysend = {
         broadcast: function(event, message) {
             if (channel) {
                 channel.postMessage({name: event, data: serialize(message)});
@@ -77,6 +77,8 @@
                 });
                 iframe.addEventListener('load', function handler() {
                     var win;
+                    // fix for Safari
+                    // https://stackoverflow.com/q/42632188/387194
                     try {
                         win = iframe.contentWindow;
                     } catch(e) {
@@ -263,4 +265,5 @@
           });
         }
     }
+    return sysend;
 });
