@@ -212,6 +212,16 @@
         });
     }
     // -------------------------------------------------------------------------
+    function is_private_mode() {
+        try {
+            localStorage.setItem(uniq_prefix, 1);
+            localStorage.removeItem(uniq_prefix);
+            return false;
+        } catch (e) {
+            return true;
+        }
+    }
+    // -------------------------------------------------------------------------
     function init() {
         // we need to clean up localStorage if broadcast called on unload
         // because setTimeout will never fire, even setTimeout 0
@@ -231,6 +241,10 @@
                     }
                 }
             });
+        } else if (is_private_mode()) {
+            console.warn('Your browser don\'t support localStorgage. ' +
+                         'In Safari this is most of the time because ' +
+                         'of "Private Browsing Mode"');
         } else {
             window.addEventListener('storage', function(e) {
                 // prevent event to be executed on remove in IE
