@@ -22,6 +22,14 @@ GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
 Windows 10 64bit: in IE11 and Edge 38, Chrome 56, Firefox 51<br/>
 MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 
+## Note about Safari 7+ and Cross-Domain communication
+
+All cross-domain communication is disabled by default with Safari 7+.
+Because of a feature that block 3rd party tracking for iframe, and any
+iframe used for cross-domain communication runs in sandboxed environment.
+That's why this library like any other solution for cross-domain comunication,
+don't work on Safari.
+
 ## Installation
 
 Include `sysend.js` file in your html, you can grab the file from npm:
