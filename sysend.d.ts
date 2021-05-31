@@ -5,10 +5,12 @@
  *  Released under the MIT license
  *
  */
-type callback = (message: any, event: string) => void;
+export type Message = string | Record<string, unknown> | number;
+
+type callback = (message: Message, event: string) => void;
 
 interface Sysend {
-    broadcast(event: string, message?: any): void;
+    broadcast(event: string, message?: Message): void;
     on(event: string, callback: callback): void;
     off(event: string, callback?: callback): void;
     proxy(url: string): void;
