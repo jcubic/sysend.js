@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.3.5
+ *  sysend.js - send messages between browser windows/tabs version 1.4.0
  *
  *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -22,7 +22,7 @@
     var uniq_prefix = '___sysend___';
     var prefix_re = new RegExp(uniq_prefix);
     var random_value = Math.random();
-    var serializer = {}, serialize, deserialize;
+    var serializer = {};
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
     var iframes = [];
