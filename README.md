@@ -51,24 +51,24 @@ you can also get it from unpkg.com CDN:
 https://unpkg.com/sysend
 ```
 
-or
+or jsDelivr:
 
 ```
 https://cdn.jsdelivr.net/npm/sysend
 ```
 
-jsDelivr minified the file.
+jsDelivr will minify the file. From my testing it's faster then unpkg.com.
 
 ## Usage
 
 ```javascript
 window.onload = function() {
-    sysend.on('foo', function(message) {
-        console.log(message);
+    sysend.on('foo', function(data) {
+        console.log(data.message);
     });
     var input = document.getElementsByTagName('input')[0];
     document.getElementsByTagName('button')[0].onclick = function() {
-        sysend.broadcast('foo', {message: input.value});
+        sysend.broadcast('foo', { message: input.value });
     };
 };
 ```
@@ -102,10 +102,10 @@ Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows (there is
 
 sysend object:
 
-* `on(name, callback)` - `callback(object, name)` - add event of specified name
-* `off(name [, callback])` - remove callback
-* `broadcast(name [, object])` - send object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without object
-* `proxy(url)` - create iframe proxy for different domain, the targer domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
+* `on(name, callback)` - `callback(object, name)` - add event handler for specified name.
+* `off(name [, callback])` - remove event handler for given name, if callback is not specified it will remove all callbacks for given name.
+* `broadcast(name [, object])` - send any object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without an object.
+* `proxy(url)` - create iframe proxy for different domain, the target domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
 * `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0)
 
 ## License
