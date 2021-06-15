@@ -1,7 +1,7 @@
 ![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)
 
-[![npm](https://img.shields.io/badge/npm-1.4.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.4.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.5.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.5.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -105,12 +105,13 @@ sysend object:
 * `on(name, callback)` - `callback(object, name)` - add event handler for specified name.
 * `off(name [, callback])` - remove event handler for given name, if callback is not specified it will remove all callbacks for given name.
 * `broadcast(name [, object])` - send any object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without an object.
-* `proxy(url)` - create iframe proxy for different domain, the target domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0)
-* `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0)
+* `emit(name, [, object])` - same as broadcast but also invoke the even on same page (new in 1.5.0).
+* `proxy(url)` - create iframe proxy for different domain, the target domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0).
+* `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0).
 
 ## License
 
-Copyright (C) 2014-2021 [Jakub T. Jankiewicz](http://jcubic.pl/me)<br/>
+Copyright (C) 2014-2021 [Jakub T. Jankiewicz](https://jakub.jankiewicz.org)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
