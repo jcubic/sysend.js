@@ -18,6 +18,7 @@
         root.sysend = factory();
     }
 })(typeof window !== "undefined" ? window : this, function() {
+    var target_collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
     var prefix_re = new RegExp(uniq_prefix);
@@ -28,32 +29,45 @@
     var iframes = [];
     var index = 0;
     var channel;
+    var primary = true;
     // we use id because storage event is not executed if message was not
     // changed, and we want it if user send same object twice (before it will
     // be removed)
     var id = 0;
-    // -------------------------------------------------------------------------
-    init();
+
+    // id of the window/tab
+    var target_id = generate_uuid();
+    var target_count = 1;
+
+    var handlers = {
+        primary: [],
+        close: [],
+        open: [],
+        secondary: [],
+        message: []
+    };
+
+    var events = Object.keys(handlers);
     // -------------------------------------------------------------------------
     var serialize = make_process(serializer, 'to');
     var unserialize = make_process(serializer, 'from');
     // -------------------------------------------------------------------------
     var sysend = {
-        broadcast: function(event, message) {
+        broadcast: function(event, data) {
             if (channel) {
-                channel.postMessage({name: event, data: serialize(message)});
+                channel.postMessage({name: event, data: serialize(data)});
             } else {
-                set(event, to_json(message));
+                set(event, to_json(data));
                 // clean up localstorage
                 setTimeout(function() {
                     remove(event);
                 }, 0);
             }
-            send_to_iframes(event, message);
+            send_to_iframes(event, data);
         },
-        emit: function(event, message) {
-            sysend.broadcast(event, message);
-            invoke(event, message);
+        emit: function(event, data) {
+            sysend.broadcast(event, data);
+            invoke(event, data);
         },
         serializer: function(to, from) {
             if (typeof to !== 'function' || typeof from !== 'function') {
@@ -104,7 +118,7 @@
         off: function(event, fn) {
             if (callbacks[event]) {
                 if (fn) {
-                    for (var i=callbacks[event].length; i--;) {
+                    for (var i = callbacks[event].length; i--;) {
                         if (callbacks[event][i] == fn) {
                             callbacks[event].splice(i, 1);
                         }
@@ -113,8 +127,75 @@
                     callbacks[event] = [];
                 }
             }
+        },
+        track: function(event, fn) {
+            if (events.includes(event)) {
+                handlers[event].push(fn);
+            }
+        },
+        untrack: function(event, fn) {
+            if (events.includes(event) && handlers[event].length) {
+                if (fn === undefined) {
+                    handlers[event] = [];
+                } else {
+                    handlers[event] = handlers[event].filter(function(handler) {
+                        return handler !== fn;
+                    });
+                }
+            }
+        },
+        post: function(target, data) {
+            sysend.broadcast('__message__', {
+                target: target,
+                data: data,
+                origin: target_id
+            })
+        },
+        list: function() {
+            return new Promise(function(resolve) {
+                var ids = [];
+                sysend.on('__window_ack__', function(data) {
+                    ids.push(data.id);
+                });
+                sysend.broadcast('__window__');
+                setTimeout(function() {
+                    sysend.off('__window_ack__');
+                    resolve(ids);
+                }, target_collecting_timeout);
+            })
+        },
+        isPrimary: function() {
+            return primary;
         }
     };
+    // -------------------------------------------------------------------------
+    init();
+    // -------------------------------------------------------------------------
+    // ref: https://stackoverflow.com/a/8809472/387194
+    // license: Public Domain/MIT
+    function generate_uuid() {
+        var d = new Date().getTime();
+        //Time in microseconds since page-load or 0 if unsupported
+        var d2 = (performance && performance.now && (performance.now() * 1000)) || 0;
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16;
+            if (d > 0) { // Use timestamp until depleted
+                r = (d + r)%16 | 0;
+                d = Math.floor(d/16);
+            } else { // Use microseconds since page-load if supported
+                r = (d2 + r)%16 | 0;
+                d2 = Math.floor(d2/16);
+            }
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+    // -------------------------------------------------------------------------
+    function trigger(arr) {
+        var args = [].slice.call(arguments, 1);
+        arr.forEach(function(fn) {
+            fn.apply(null, args);
+        });
+    }
     // -------------------------------------------------------------------------
     function get(key) {
         return localStorage.getItem(uniq_prefix + key);
@@ -267,6 +348,71 @@
                 }
             }, false);
         }
+
+        sysend.on('__open__', function(data) {
+            var id = data.id;
+            target_count++;
+            if (primary) {
+                sysend.broadcast('__ack__');
+            }
+            trigger(handlers.open, {
+                count: target_count,
+                primary: data.primary,
+                id: data.id
+            });
+        });
+
+        sysend.on('__ack__', function() {
+            if (!primary) {
+                trigger(handlers.secondary);
+            }
+        });
+
+        sysend.on('__close__', function(data) {
+            --target_count;
+            if (target_count === 1) {
+                primary = true;
+            }
+            var payload = {
+                id: data.id,
+                count: target_count,
+                primary: primary,
+                self: data.id === target_id
+            };
+            trigger(handlers.close, payload);
+            if (primary) {
+                trigger(handlers.primary);
+            }
+        });
+
+        sysend.on('__window__', function() {
+            sysend.broadcast('__window_ack__', { id: target_id });
+        });
+
+        sysend.on('__message__', function(data) {
+            console.log({data, target_id});
+            if (data.target === target_id) {
+                console.log(handlers.message);
+                trigger(handlers.message, data);
+            }
+        });
+
+        addEventListener('beforeunload', function() {
+            sysend.emit('__close__', { id: target_id });
+        }, { capture: true });
+
+        sysend.list().then(function(list) {
+            target_count = list.length;
+            primary = list.length === 0;
+            sysend.emit('__open__', {
+                id: target_id,
+                primary: primary
+            });
+            if (primary) {
+                trigger(handlers.primary);
+            }
+        });
+
         if (is_iframe()) {
           window.addEventListener('message', function(e) {
               if (typeof e.data === 'string' && e.data.match(prefix_re)) {

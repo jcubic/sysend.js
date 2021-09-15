@@ -4,41 +4,110 @@
     <meta charset="utf-8" />
     <title>Sysend demo</title>
     <script src="sysend.js"></script>
+    <style>
+     pre {
+         margin: 0;
+     }
+    </style>
     <script>
-window.onload = function() {
-    var pre = document.getElementsByTagName('pre')[0];
-    function message(msg) {
-        pre.innerHTML += msg + '\n';
-    }
-    sysend.on('foo', function(obj) {
-        message('just get event "foo" with message: ' + obj.message);
-        console.log(obj.message);
-    });
-    sysend.on('notification', function(obj) {
-        if (typeof obj == 'undefined') {
-            message('just got empty notification');
-        }
-    });
-    var a = document.getElementById('a');
-    var b = document.getElementById('b');
-    var input = document.getElementsByTagName('input')[0];
-    a.onclick = function() {
-        sysend.broadcast('foo', {message: input.value});
-    };
-    b.onclick = function() {
-        sysend.broadcast('notification');
-    };
-    sysend.proxy('https://jcubic.pl');
-    sysend.proxy('https://terminal.jcubic.pl');
-};
+     window.onload = function() {
+         function log(element) {
+             return function (msg) {
+                 element.innerHTML += msg + '\n';
+             };
+         }
+         function count(c) {
+             windows.innerHTML = c;
+         }
+         function id(uuid) {
+             return '{id: ' + uuid + '}';
+         }
+         var message = log(document.querySelector('#messages'));
+         var track = log(document.querySelector('#track'));
+         sysend.on('foo', function(obj) {
+             message('just get event "foo" with message: ' + obj.message);
+             console.log(obj.message);
+         });
+         sysend.on('notification', function(obj) {
+             if (typeof obj == 'undefined') {
+                 message('just got empty notification');
+             }
+         });
+         var a = document.getElementById('a');
+         var b = document.getElementById('b');
+         var c = document.getElementById('c');
+         var input = document.querySelector('#msg');
+         a.onclick = function() {
+             sysend.broadcast('foo', {message: input.value});
+         };
+         b.onclick = function() {
+             sysend.broadcast('notification');
+         };
+         c.onclick = function() {
+             var targed_id = target.value;
+             if (targed_id) {
+                 track('send: ' + msg2.value);
+                 sysend.post(targed_id, msg2.value);
+             }
+         };
+         sysend.proxy('https://jcubic.pl');
+         sysend.proxy('https://terminal.jcubic.pl');
+         sysend.track('open', function(data) {
+             var target_type = data.primary ? 'primary' : 'secondary';
+             track('open: ' + id(data.id) + ' [' + target_type + ']');
+             count(data.count);
+             if (sysend.isPrimary() && data.count > 1) {
+                 track('send: Welcome');
+                 sysend.post(data.id, 'Welcome');
+             }
+             sysend.list().then(list => {
+                 list.forEach(function(uuid) {
+                     var option = document.createElement('option');
+                     option.innerHTML = uuid;
+                     option.value = uuid;
+                     target.appendChild(option);
+                 });
+             });
+         });
+         sysend.track('message', function(data) {
+             track('message: ' + data.message + ' from ' + data.origin);
+         });
+         sysend.track('message', function once(data) {
+             if (!sysend.isPrimary()) {
+                 sysend.post(data.origin, 'Thanks for the message');
+             }
+             sysend.untrack('message', once);
+         });
+         sysend.track('close', function(data) {
+             count(data.count);
+             if (sysend.isPrimary()) {
+                 track('close: ' + id(data.id) + ', last - become primary');
+             } else {
+                 track('close: ' + id(data.id));
+             }
+         });
+         sysend.track('primary', function() {
+             track('track: primary');
+         });
+         sysend.track('secondary', function() {
+             track('track: secondary');
+         });
+     };
     </script>
 </head>
 <body>
     <h1>sysend.js demo</h1>
     <h2>Open this page in two different tabs</h2>
-    <input/>
+    <input id="msg" />
     <button id="a">object {message}</button>
     <button id="b">empty</button>
-    <pre></pre>
+    <pre id="message"></pre>
+    <h2>Window/tabs tracking</h2>
+    <pre>count: <span id="windows"></span></pre>
+    <pre id="track"></pre>
+    <h2>Send to window</h2>
+    <select id="target"></select>
+    <input id="msg2" />
+    <button id="c">send</button>
 </body>
 </html>
