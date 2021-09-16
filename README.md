@@ -1,4 +1,6 @@
-![Sysend.js Logo](https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true)
+<p align="center">
+  <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
+</p>
 
 [![npm](https://img.shields.io/badge/npm-1.5.0-blue.svg)](https://www.npmjs.com/package/sysend)
 ![bower](https://img.shields.io/badge/bower-1.5.0-yellow.svg)
