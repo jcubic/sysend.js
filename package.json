@@ -1,6 +1,6 @@
 {
   "name": "sysend",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Send messages to other tabs/windows in the same browser",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
@@ -15,6 +15,9 @@
     "windows",
     "messages",
     "cross-domain",
+    "cors",
+    "domain",
+    "communication",
     "events",
     "callback",
     "notifications",
