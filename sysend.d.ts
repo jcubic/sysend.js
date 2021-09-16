@@ -20,7 +20,7 @@ interface Sysend {
     track(event: 'message', callback: (data: any) => void): void;
     track(event: 'secondary', callback: () => void): void;
     untrack(event: 'open' | 'close' | 'primary' | 'secondary' | 'message', fn?: (data?: any) => void): void;
-    list(): Promise<Array<String>>;
+    list(): Promise<Array<{ id: string, primary: boolean }>>;
     post(target: string, data?: any): void;
 }
 

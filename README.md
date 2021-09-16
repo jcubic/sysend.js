@@ -111,7 +111,7 @@ sysend object:
 * `proxy(url)` - create iframe proxy for different domain, the target domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0).
 * `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0).
 * `post(<window_id>, [, object])` - send any data to other window (new in 1.6.0).
-* `list()` - function return Promise of UUID for other windows, you can use those to send message with `post()` (new in 1.6.0).
+* `list()` - function return Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send message with `post()` (new in 1.6.0).
 * `track(event, callback)` - track specific event (new in 1.6.0), avilable events: `"open"`, `"close"`, `"primary"`, `"secondary"`, callback is a function that accepts single object as argument:
   * `"open"`: `{count, primary, id}`.
   * `"close"`: `{count, primary, id, self}`.

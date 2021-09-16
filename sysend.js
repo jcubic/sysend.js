@@ -18,7 +18,7 @@
         root.sysend = factory();
     }
 })(typeof window !== "undefined" ? window : this, function() {
-    var target_collecting_timeout = 400;
+    var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
     var prefix_re = new RegExp(uniq_prefix);
@@ -34,6 +34,8 @@
     // changed, and we want it if user send same object twice (before it will
     // be removed)
     var id = 0;
+    // identifier for making each call to list unique
+    var list_id = 0;
 
     // id of the window/tab
     var target_id = generate_uuid();
@@ -152,18 +154,23 @@
             });
         },
         list: function() {
+            var id = list_id++;
+            var marker = { target: target_id, id: id };
+            var timer = delay(sysend.timeout);
             return new Promise(function(resolve) {
                 var ids = [];
                 sysend.on('__window_ack__', function(data) {
-                    if (data.origin === target_id) {
-                        ids.push(data.id);
+                    if (data.origin.target === target_id && data.origin.id === id) {
+                        ids.push({
+                            id: data.id,
+                            primary: data.primary
+                        });
                     }
                 });
-                sysend.broadcast('__window__', { id: target_id });
-                setTimeout(function() {
-                    sysend.off('__window_ack__');
+                sysend.broadcast('__window__', { id: marker });
+                timer().then(function() {
                     resolve(ids);
-                }, target_collecting_timeout);
+                });
             });
         },
         isPrimary: function() {
@@ -171,7 +178,63 @@
         }
     };
     // -------------------------------------------------------------------------
+    Object.defineProperty(sysend, 'timeout', {
+        enumerable: true,
+        get: function() {
+            return collecting_timeout;
+        },
+        set: function(value) {
+            if (typeof value === 'number' && !isNaN(value)) {
+                collecting_timeout = value;
+            }
+        }
+    });
+    // -------------------------------------------------------------------------
+    var host = (function() {
+        if (typeof URL !== 'undefined') {
+            return function(url) {
+                url = new URL(url);
+                return url.host;
+            };
+        }
+        var a = document.createElement('a');
+        return function(url) {
+            a.href = url;
+            return a.host;
+        };
+    })();
+    // -------------------------------------------------------------------------
     init();
+    // -------------------------------------------------------------------------
+    function delay(time) {
+        return function() {
+            return new Promise(function(resolve) {
+                setTimeout(resolve, time);
+            });
+        };
+    }
+    // -------------------------------------------------------------------------
+    function onLoad() {
+        return new Promise(function(resolve) {
+            window.addEventListener('load', resolve, true);
+        }).then(iframeLoaded);
+    }
+    // -------------------------------------------------------------------------
+    function iframeLoaded() {
+        var iframes = Array.from(document.querySelectorAll('iframe'));
+        return Promise.all(iframes.filter(function(iframe) {
+            return iframe.src;
+        }).map(function(iframe) {
+            return new Promise(function(resolve, reject) {
+                iframe.addEventListener('load', () => {
+                    resolve();
+                }, true);
+                iframe.addEventListener('error', reject, true);
+            });
+        })).then(delay(sysend.timeout));
+        // delay is required, something with browser is not intitled properly
+        // the number was pick by experimentation
+    }
     // -------------------------------------------------------------------------
     // ref: https://stackoverflow.com/a/8809472/387194
     // license: Public Domain/MIT
@@ -279,20 +342,6 @@
         return result;
     }
     // -------------------------------------------------------------------------
-    var host = (function() {
-        if (typeof URL !== 'undefined') {
-            return function(url) {
-                url = new URL(url);
-                return url.host;
-            };
-        }
-        var a = document.createElement('a');
-        return function(url) {
-            a.href = url;
-            return a.host;
-        };
-    })();
-    // -------------------------------------------------------------------------
     function invoke(key, data) {
         callbacks[key].forEach(function(fn) {
             fn(data, key);
@@ -310,14 +359,6 @@
     }
     // -------------------------------------------------------------------------
     function init() {
-        // we need to clean up localStorage if broadcast called on unload
-        // because setTimeout will never fire, even setTimeout 0
-        var re = new RegExp('^' + uniq_prefix);
-        for(var key in localStorage) {
-            if (key.match(re)) {
-                localStorage.removeItem(key);
-            }
-        }
         if (typeof window.BroadcastChannel === 'function') {
             channel = new window.BroadcastChannel(uniq_prefix);
             channel.addEventListener('message', function(event) {
@@ -333,6 +374,14 @@
                          'In Safari this is most of the time because ' +
                          'of "Private Browsing Mode"');
         } else {
+            // we need to clean up localStorage if broadcast called on unload
+            // because setTimeout will never fire, even setTimeout 0
+            var re = new RegExp('^' + uniq_prefix);
+            for(var key in localStorage) {
+                if (key.match(re)) {
+                    localStorage.removeItem(key);
+                }
+            }
             window.addEventListener('storage', function(e) {
                 // prevent event to be executed on remove in IE
                 if (e.key.match(re) && index++ % 2 === 0) {
@@ -351,84 +400,92 @@
             }, false);
         }
 
-        sysend.on('__open__', function(data) {
-            var id = data.id;
-            target_count++;
-            if (primary) {
-                sysend.broadcast('__ack__');
-            }
-            setTimeout(function() {
+        if (is_iframe()) {
+            window.addEventListener('message', function(e) {
+                if (typeof e.data === 'string' && e.data.match(prefix_re)) {
+                    try {
+                        var payload = JSON.parse(e.data);
+                        if (payload && payload.name === uniq_prefix) {
+                            var data = unserialize(payload.data);
+                            sysend.broadcast(payload.key, data);
+                        }
+                    } catch(e) {
+                        // ignore wrong JSON, the message don't came from Sysend
+                        // even that the string have unix_prefix, this is just in case
+                    }
+                }
+            });
+        } else {
+
+            sysend.on('__open__', function(data) {
+                var id = data.id;
+                target_count++;
+                if (primary) {
+                    sysend.broadcast('__ack__');
+                }
                 trigger(handlers.open, {
                     count: target_count,
                     primary: data.primary,
                     id: data.id
                 });
-            }, 100);
-        });
-
-        sysend.on('__ack__', function() {
-            if (!primary) {
-                trigger(handlers.secondary);
-            }
-        });
-
-        sysend.on('__close__', function(data) {
-            --target_count;
-            if (target_count === 1) {
-                primary = true;
-            }
-            var payload = {
-                id: data.id,
-                count: target_count,
-                primary: primary,
-                self: data.id === target_id
-            };
-            trigger(handlers.close, payload);
-            if (primary) {
-                trigger(handlers.primary);
-            }
-        });
-
-        sysend.on('__window__', function(data) {
-            sysend.broadcast('__window_ack__', { id: target_id, origin: data.id });
-        });
-
-        sysend.on('__message__', function(data) {
-            if (data.target === target_id) {
-                trigger(handlers.message, data);
-            }
-        });
-
-        addEventListener('beforeunload', function() {
-            sysend.emit('__close__', { id: target_id });
-        }, { capture: true });
-
-        sysend.list().then(function(list) {
-            target_count = list.length;
-            primary = list.length === 0;
-            sysend.emit('__open__', {
-                id: target_id,
-                primary: primary
             });
-            if (primary) {
-                trigger(handlers.primary);
-            }
-        });
 
-        if (is_iframe()) {
-          window.addEventListener('message', function(e) {
-              if (typeof e.data === 'string' && e.data.match(prefix_re)) {
-                  try {
-                      var payload = JSON.parse(e.data);
-                      if (payload && payload.name === uniq_prefix) {
-                          sysend.broadcast(payload.key, unserialize(payload.data));
-                      }
-                  } catch(e) {
-                      // ignore wrong JSON, the message don't came from Sysend
-                      // even that the string have unix_prefix, this is just in case
-                  }
-              }
-          });
+            sysend.on('__ack__', function() {
+                if (!primary) {
+                    trigger(handlers.secondary);
+                }
+            });
+
+            sysend.on('__close__', function(data) {
+                --target_count;
+                if (target_count === 1) {
+                    primary = true;
+                }
+                var payload = {
+                    id: data.id,
+                    count: target_count,
+                    primary: primary,
+                    self: data.id === target_id
+                };
+                trigger(handlers.close, payload);
+                if (primary) {
+                    trigger(handlers.primary);
+                }
+            });
+
+            sysend.on('__window__', function(data) {
+                sysend.broadcast('__window_ack__', {
+                    id: target_id,
+                    origin: data.id,
+                    primary: primary
+                });
+            });
+
+            sysend.on('__message__', function(data) {
+                if (data.target === target_id) {
+                    trigger(handlers.message, data);
+                }
+            });
+
+            addEventListener('beforeunload', function() {
+                sysend.emit('__close__', { id: target_id });
+            }, { capture: true });
+
+            onLoad().then(function() {
+                sysend.list().then(function(list) {
+                    target_count = list.length;
+                    primary = list.length === 0;
+                    console.log([...list]);
+                    console.log(primary);
+                    sysend.emit('__open__', {
+                        id: target_id,
+                        primary: primary
+                    });
+                    if (primary) {
+                        trigger(handlers.primary);
+                    }
+                });
+            });
         }
     }
     return sysend;
