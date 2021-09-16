@@ -149,7 +149,7 @@
                 target: target,
                 data: data,
                 origin: target_id
-            })
+            });
         },
         list: function() {
             return new Promise(function(resolve) {
@@ -162,7 +162,7 @@
                     sysend.off('__window_ack__');
                     resolve(ids);
                 }, target_collecting_timeout);
-            })
+            });
         },
         isPrimary: function() {
             return primary;
@@ -355,11 +355,13 @@
             if (primary) {
                 sysend.broadcast('__ack__');
             }
-            trigger(handlers.open, {
-                count: target_count,
-                primary: data.primary,
-                id: data.id
-            });
+            setTimeout(function() {
+                trigger(handlers.open, {
+                    count: target_count,
+                    primary: data.primary,
+                    id: data.id
+                });
+            }, 100);
         });
 
         sysend.on('__ack__', function() {
@@ -390,9 +392,7 @@
         });
 
         sysend.on('__message__', function(data) {
-            console.log({data, target_id});
             if (data.target === target_id) {
-                console.log(handlers.message);
                 trigger(handlers.message, data);
             }
         });
