@@ -1,6 +1,6 @@
 {
   "name": "sysend",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Send messages to other tabs/windows in the same browser",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
