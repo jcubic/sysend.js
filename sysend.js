@@ -155,9 +155,11 @@
             return new Promise(function(resolve) {
                 var ids = [];
                 sysend.on('__window_ack__', function(data) {
-                    ids.push(data.id);
+                    if (data.origin === target_id) {
+                        ids.push(data.id);
+                    }
                 });
-                sysend.broadcast('__window__');
+                sysend.broadcast('__window__', { id: target_id });
                 setTimeout(function() {
                     sysend.off('__window_ack__');
                     resolve(ids);
@@ -387,8 +389,8 @@
             }
         });
 
-        sysend.on('__window__', function() {
-            sysend.broadcast('__window_ack__', { id: target_id });
+        sysend.on('__window__', function(data) {
+            sysend.broadcast('__window_ack__', { id: target_id, origin: data.id });
         });
 
         sysend.on('__message__', function(data) {
