@@ -108,6 +108,16 @@ sysend object:
 * `emit(name, [, object])` - same as broadcast but also invoke the even on same page (new in 1.5.0).
 * `proxy(url)` - create iframe proxy for different domain, the target domain/url should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both domains (new in 1.3.0).
 * `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0).
+* `post(<window_id>, [, object])` - send any data to other window (new in 1.6.0).
+* `list()` - function return Promise of UUID for other windows, you can use those to send message with `post()` (new in 1.6.0).
+* `track(event, callback)` - track specific event (new in 1.6.0), avilable events: `"open"`, `"close"`, `"primary"`, `"secondary"`, callback is a function that accepts single object as argument:
+  * `"open"`: `{count, primary, id}`.
+  * `"close"`: `{count, primary, id, self}`.
+  * `"primary"` and `"secondary"` no argument is given.
+* `untrack(event [,callback])` - remove tracking callback, if no function is given it will remove all callbacks for a given event (new in 1.6.0).
+* `isPrimary()` - function that return true/false depend if window is primary (first window opened or last that remain) (new in 1.6.0).
+
+To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 
 ## License
 
