@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.6.2
+ *  sysend.js - send messages between browser windows/tabs version 1.7.0
  *
  *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jakub.jankiewicz.org>
  *  Released under the MIT license
