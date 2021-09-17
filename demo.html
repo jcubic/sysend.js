@@ -77,7 +77,9 @@
              track('message: ' + data.data + ' from ' + data.origin);
          });
          sysend.track('message', function once(data) {
+             // one time welcome message reply to primary
              if (!sysend.isPrimary()) {
+                 track('send: Thanks');
                  sysend.post(data.origin, 'Thanks for the message');
              }
              sysend.untrack('message', once);
@@ -86,13 +88,15 @@
              count(data.count);
              if (sysend.isPrimary()) {
                  track('close: ' + id(data.id) + ', last - become primary');
+             } else if (data.wasPrimary) {
+                 track('close: ' + id(data.id) + ', primary was closed');
              } else {
                  track('close: ' + id(data.id));
              }
              list();
          });
          sysend.track('primary', function() {
-             track('track: primary');
+             track('track: become primary');
          });
          sysend.track('secondary', function() {
              track('track: secondary');
