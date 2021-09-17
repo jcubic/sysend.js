@@ -86,9 +86,9 @@
          });
          sysend.track('close', function(data) {
              count(data.count);
-             if (sysend.isPrimary()) {
+             if (data.count === 1) {
                  track('close: ' + id(data.id) + ', last - become primary');
-             } else if (data.wasPrimary) {
+             } else if (data.primary) {
                  track('close: ' + id(data.id) + ', primary was closed');
              } else {
                  track('close: ' + id(data.id));

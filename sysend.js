@@ -476,21 +476,13 @@
                 if (data.wasPrimary && !primary) {
                     has_primary = false;
                 }
-                if (last) {
-                    primary = true;
-                    has_primary = true;
-                }
                 var payload = {
                     id: data.id,
                     count: target_count,
-                    wasPrimary: data.wasPrimary,
-                    primary: primary,
+                    primary: data.wasPrimary,
                     self: data.id === target_id
                 };
                 trigger(handlers.close, payload);
-                if (primary) {
-                    trigger(handlers.primary);
-                }
             });
 
             sysend.on('__window__', function(data) {
