@@ -26,6 +26,7 @@
     var serializer = {};
     // object with user events as keys and values arrays of callback functions
     var callbacks = {};
+    var has_primary;
     var iframes = [];
     var index = 0;
     var channel;
@@ -46,9 +47,9 @@
         close: [],
         open: [],
         secondary: [],
-        message: []
+        message: [],
+        visbility: []
     };
-
     var events = Object.keys(handlers);
     // -------------------------------------------------------------------------
     var serialize = make_process(serializer, 'to');
@@ -358,6 +359,26 @@
         }
     }
     // -------------------------------------------------------------------------
+    function init_visiblity() {
+        // ref: https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+        var hidden, visibilityChange;
+        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+            hidden = "hidden";
+            visibilityChange = "visibilitychange";
+        } else if (typeof document.msHidden !== "undefined") {
+            hidden = "msHidden";
+            visibilityChange = "msvisibilitychange";
+        } else if (typeof document.webkitHidden !== "undefined") {
+            hidden = "webkitHidden";
+            visibilityChange = "webkitvisibilitychange";
+        }
+        if (typeof document.addEventListener === 'function' && hidden) {
+            document.addEventListener(visibilityChange, function() {
+                trigger(handlers.visbility, !document[hidden]);
+            }, false);
+        }
+    }
+    // -------------------------------------------------------------------------
     function init() {
         if (typeof window.BroadcastChannel === 'function') {
             channel = new window.BroadcastChannel(uniq_prefix);
@@ -416,6 +437,19 @@
                 }
             });
         } else {
+            init_visiblity();
+
+            sysend.track('visbility', function(visible) {
+                if (visible && !has_primary) {
+                    primary = true;
+                    trigger(handlers.primary);
+                    sysend.emit('__primary__');
+                }
+            });
+
+            sysend.on('__primary__', function() {
+                has_primary = true;
+            });
 
             sysend.on('__open__', function(data) {
                 var id = data.id;
@@ -438,12 +472,18 @@
 
             sysend.on('__close__', function(data) {
                 --target_count;
-                if (target_count === 1) {
+                var last = target_count === 1;
+                if (data.wasPrimary && !primary) {
+                    has_primary = false;
+                }
+                if (last) {
                     primary = true;
+                    has_primary = true;
                 }
                 var payload = {
                     id: data.id,
                     count: target_count,
+                    wasPrimary: data.wasPrimary,
                     primary: primary,
                     self: data.id === target_id
                 };
@@ -468,15 +508,19 @@
             });
 
             addEventListener('beforeunload', function() {
-                sysend.emit('__close__', { id: target_id });
+                sysend.emit('__close__', { id: target_id, wasPrimary: primary });
             }, { capture: true });
 
             onLoad().then(function() {
                 sysend.list().then(function(list) {
                     target_count = list.length;
                     primary = list.length === 0;
-                    console.log([...list]);
-                    console.log(primary);
+                    var found = list.find(function(item) {
+                        return item.primary;
+                    });
+                    if (found || primary) {
+                        has_primary = true;
+                    }
                     sysend.emit('__open__', {
                         id: target_id,
                         primary: primary

@@ -112,7 +112,7 @@ sysend object:
 * `serializer(to_string, from_string)` - add serializer and deserializer functions (new in 1.4.0).
 * `post(<window_id>, [, object])` - send any data to other window (new in 1.6.0).
 * `list()` - function return Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send message with `post()` (new in 1.6.0).
-* `track(event, callback)` - track specific event (new in 1.6.0), avilable events: `"open"`, `"close"`, `"primary"`, `"secondary"`, callback is a function that accepts single object as argument:
+* `track(event, callback)` - track specific event (new in 1.6.0), avilable events: `"open"`, `"close"`, `"primary"`, `"secondary"`, `"message"`, callback is a function that accepts single object as argument:
   * `"open"`: `{count, primary, id}`.
   * `"close"`: `{count, primary, id, self}`.
   * `"primary"` and `"secondary"` no argument is given.
