@@ -100,6 +100,8 @@ sysend.serializer(function(data) {
 
 Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows (there is also link to other domain).
 
+Here is another example that shows [ReactJS shopping cart synchronization](https://codepen.io/jcubic/pen/QWgmBmE).
+
 ## API
 
 sysend object:
