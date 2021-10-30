@@ -1,7 +1,7 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.7.1
+ *  sysend.js - send messages between browser windows/tabs version 1.8.0
  *
- *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jakub.jankiewicz.org>
+ *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
  *
  *  The idea for localStorage implementation came from this StackOverflow question:
@@ -56,6 +56,7 @@
     var unserialize = make_process(serializer, 'from');
     // -------------------------------------------------------------------------
     var sysend = {
+        id: target_id,
         broadcast: function(event, data) {
             if (channel) {
                 channel.postMessage({name: event, data: serialize(data)});

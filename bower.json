@@ -3,7 +3,7 @@
   "description": "Send messages to other tabs/windows in the same origin and browser",
   "main": "sysend.js",
   "authors": [
-    "Jakub T. Jankiewicz <jcubic@onet.pl> (https://jcubic.pl/jakub-jankiewicz/)"
+    "Jakub T. Jankiewicz <jcubic@onet.pl> (https://jcubic.pl/me/)"
   ],
   "license": "MIT",
   "keywords": [
