@@ -2,12 +2,12 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.8.1-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.8.1-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.8.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.8.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
-# [Send messages between browser tabs](https://github.com/jcubic/sysend.js/)
+# [Web application synchronization between different tabs](https://github.com/jcubic/sysend.js/)
 
 sysend.js is a small library that allows to send messages between pages that are
 open in the same browser. It also supports Cross-Domain communication. The library doesn't have

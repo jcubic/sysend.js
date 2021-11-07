@@ -1,7 +1,7 @@
 {
   "name": "sysend",
-  "version": "1.8.1",
-  "description": "Send messages to other tabs/windows in the same browser",
+  "version": "1.8.0",
+  "description": "Web application synchronization between different tabs",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
   "scripts": {
