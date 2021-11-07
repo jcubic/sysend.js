@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.8.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.8.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.8.1-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.8.1-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -115,6 +115,7 @@ sysend object:
 * `post(<window_id>, [, object])` - send any data to other window (new in 1.6.0).
 * `list()` - function return Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send message with `post()` (new in 1.6.0).
 * `track(event, callback)` - track specific event (new in 1.6.0), avilable events: `"open"`, `"close"`, `"primary"`, `"secondary"`, `"message"`, callback is a function that accepts single object as argument:
+ * `"message"`: `{date, origin}` where data is anything the `post()` sends, and origin is `id` of the sender.
   * `"open"`: `{count, primary, id}`.
   * `"close"`: `{count, primary, id, self}`.
   * `"primary"` and `"secondary"` no argument is given.

@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.8.0
+ *  sysend.js - send messages between browser windows/tabs version 1.8.1
  *
  *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -18,11 +18,12 @@ interface Sysend {
     track(event: 'open', callback: (data: {id: string, count: number, primary: boolean}) => void): void;
     track(event: 'close', callback: (data: {id: string, count: number, primary: boolean, self: boolean}) => void): void;
     track(event: 'primary', callback: () => void): void;
-    track(event: 'message', callback: (data: any) => void): void;
+    track(event: 'message', callback: (payload: {data: any, origin: string}) => void): void;
     track(event: 'secondary', callback: () => void): void;
-    untrack(event: 'open' | 'close' | 'primary' | 'secondary' | 'message', fn?: (data?: any) => void): void;
+    untrack(event: 'open' | 'close' | 'primary' | 'secondary' | 'message', fn?: (input?: any) => void): void;
     list(): Promise<Array<{ id: string, primary: boolean }>>;
     post(target: string, data?: any): void;
+    isPrimary(): boolean;
 }
 
 declare const sysend: Sysend;
