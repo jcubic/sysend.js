@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Window Management Demo</title>
+    <meta name="Description" content=""/>
+    <!--[if IE]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <style>
+     :root {
+         --scale: 0.5;
+     }
+     body {
+         margin: 0;
+     }
+     html, body {
+         height: 100%;
+     }
+     #output {
+         position: absolute;
+         top: 0;
+         left: 0;
+         opactity: 0.4;
+     }
+     .primary #monitor {
+         width: calc(var(--width) * var(--scale) * 1px);
+         height: calc(var(--height) * var(--scale) * 1px);
+         border: 1px solid green;
+         position: relative;
+         overflow: hidden;
+     }
+     .window {
+         background: red;
+         border: 2px solid black;
+         position: absolute;
+         left: calc(var(--left) * var(--scale) * 1px);
+         top: calc(var(--top) * var(--scale) * 1px);
+         width: calc(var(--width) * var(--scale) * 1px);
+         height: calc(var(--height) * var(--scale) * 1px);
+         transition: all 0.5s linear;
+     }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sysend"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+  <pre id="output"></pre>
+  <div id="monitor"></div>
+    <script>
+     function geometry() {
+         const left = window.screenX;
+         const top = window.screenY;
+         const width = window.innerWidth;
+         const height = window.innerHeight;
+         return {
+             top,
+             left,
+             width,
+             height
+         };
+     }
+
+     function log(message) {
+         if (typeof message === 'object') {
+             message = JSON.stringify(message);
+         }
+         if (output.innerHTML) {
+             message = '\n' + message;
+         }
+         output.innerHTML += message;
+     }
+
+     function same(a, b) {
+         return a.every((element, i) => {
+             return b[i] === element;
+         });
+     }
+
+     function diff(a, b) {
+         var keys_a = Object.keys(b).sort();
+         var keys_b = Object.keys(a).sort();
+         if (!same(keys_a, keys_b)) {
+             return true;
+         }
+         var diff = keys_a.filter(key_a => {
+             return a[key_a] !== b[key_a];
+         });
+         return diff.length > 0;
+     }
+
+     function sendToPrimary(data) {
+         return sysend.list().then(list => {
+             console.log(list);
+             return list.find(window => window.primary);
+         }).then(primary => {
+             sysend.post(primary.id, data);
+         });
+     }
+
+     class EventEmitter {
+         constructor() {
+             this.hadlers = {};
+         }
+         on(event, handler) {
+             if (typeof handler === 'function') {
+                 this.hadlers[event] ??= [];
+                 this.hadlers[event].push(handler);
+             }
+         }
+         trigger(event, ...args) {
+             this.hadlers[event].forEach(fn => {
+                 fn?.(...args);
+             });
+         }
+     }
+
+     function onWindowGeometryChannge(callback, delay = 100) {
+         var events = new EventEmitter();
+         let oldGeometry = geometry();
+         events.on('resize', callback);
+         setInterval(() => {
+             const newGeometry = geometry();
+             if (diff(newGeometry, oldGeometry)) {
+                 oldGeometry = newGeometry;
+                 events.trigger('resize', newGeometry);
+             }
+         }, delay);
+     }
+     function style(geometry) {
+         return Object.keys(geometry).map(name => {
+             return `--${name}: ${geometry[name]}`;
+         }).join(';');
+     }
+     function div(geometry, text = '') {
+         console.log(new Error().stack);
+         return `<div class="window" style="${style(geometry)}">${text}</div>`;
+     };
+     function geometrySync(local, other) {
+         monitor.innerHTML = div(local, 'Self (Primary)') +
+                             Object.keys(other).map(key => {
+                                 return div(other[key], key)
+                             }).join('');
+     }
+     var windowCount = 0;
+     var windowGeometries = {};
+     var localGeometry;
+
+     function setMonitorSize() {
+         monitor.style.setProperty('--width', window.screen.width);
+         monitor.style.setProperty('--height', window.screen.height);
+     }
+
+     onWindowGeometryChannge(function(geometry) {
+         if (sysend.isPrimary()) {
+             localGeometry = geometry;
+             geometrySync(localGeometry, windowGeometries);
+         } else {
+             sendToPrimary({geometry});
+         }
+     });
+     sysend.track('open', () => ++windowCount);
+     sysend.track('close', ({id}) => {
+         --windowCount;
+         delete windowGeometries[id];
+     });
+     // window manager is main page
+     sysend.track('primary', () => {
+         document.body.classList.add('primary');
+         setMonitorSize();
+         sysend.track('message', ({data, origin}) => {
+             if (data.geometry) {
+                 windowGeometries[origin] = data.geometry;
+                 geometrySync(localGeometry, windowGeometries);
+             }
+         });
+     });
+     sysend.track('ready', function() {
+         localGeometry = geometry();
+         if (sysend.isPrimary()) {
+             geometrySync(localGeometry, windowGeometries);
+         } else {
+             sendToPrimary({geometry: localGeometry});
+         }
+     });
+    </script>
+    <!-- Start Open Web Analytics Tracker -->
+    <script type="text/javascript">
+     //<![CDATA[
+     var owa_baseUrl = 'http://stats.jcubic.pl/';
+     var owa_cmds = owa_cmds || [];
+     owa_cmds.push(['setSiteId', 'b0fda2fd267289c39125653957851823']);
+     owa_cmds.push(['trackPageView']);
+     owa_cmds.push(['trackClicks']);
+     (function() {
+         var _owa = document.createElement('script'); _owa.type = 'text/javascript'; _owa.async = true;
+         owa_baseUrl = ('https:' == document.location.protocol ? window.owa_baseSecUrl || owa_baseUrl.replace(/http:/, 'https:') : owa_baseUrl );
+         _owa.src = owa_baseUrl + 'modules/base/js/owa.tracker-combined-min.js';
+         var _owa_s = document.getElementsByTagName('script')[0]; _owa_s.parentNode.insertBefore(_owa, _owa_s);
+     }());
+     //]]>
+    </script>
+    <!-- End Open Web Analytics Code -->
+</body>
+</html>
