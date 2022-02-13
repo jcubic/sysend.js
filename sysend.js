@@ -385,9 +385,19 @@
             channel = new window.BroadcastChannel(uniq_prefix);
             channel.addEventListener('message', function(event) {
                 if (event.target.name === uniq_prefix) {
-                    var key = event.data && event.data.name;
-                    if (callbacks[key]) {
-                        invoke(key, unserialize(event.data.data));
+                    if (is_iframe()) {
+                        var payload = {
+                          name: uniq_prefix,
+                          data: event.data,
+                          iframe_id: target_id
+                        };
+
+                        window.parent.postMessage(JSON.stringify(payload), "*");
+                    } else {
+                        var key = event.data && event.data.name;
+                        if (callbacks[key]) {
+                            invoke(key, unserialize(event.data.data));
+                        }
                     }
                 }
             });
@@ -503,6 +513,29 @@
             addEventListener('beforeunload', function() {
                 sysend.emit('__close__', { id: target_id, wasPrimary: primary });
             }, { capture: true });
+
+            // Track when receiving messages from iframes
+            window.addEventListener("message", function(e) {
+                if (typeof e.data === 'string' && e.data.match(prefix_re)) {
+                    try {
+                        var payload = JSON.parse(e.data);
+                        if (!payload || payload.name !== uniq_prefix) return;
+
+                        var data = unserialize(payload.data);
+
+                        if (data.data && data.data.target && payload.iframe_id && payload.iframe_id == data.data.target) {
+                            data.data.target = target_id; // Swap target ID's since this call came from iframe
+                        }
+
+                        var key = data && data.name;
+                        if (callbacks[key])
+                            invoke(key, data.data);
+                    } catch(e) {
+                        // ignore wrong JSON, the message don't came from Sysend
+                        // even that the string have unix_prefix, this is just in case
+                    }
+                }
+            });
 
             onLoad().then(function() {
                 sysend.list().then(function(list) {
