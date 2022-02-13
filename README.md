@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.8.1-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.8.1-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.9.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.9.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -116,7 +116,7 @@ sysend object:
 | `emit(name, [, object])` | same as `broadcast()` but also invoke the even on same page | name - string - The name of the event<br>object - optional any data | 1.5.0 |
 | `post(<window_id>, [, object])` | send any data to other window | window_id - string of the target window<br>object - any data | 1.6.0 |
 | `list()` | returns a Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send a message with `post()` | NA | 1.6.0 |
-| `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary. | 1.6.0 |
+| `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary.<br>* `"ready"` - event when tracking is ready. | 1.6.0 except `ready` - 1.9.0 |
 | `untrack(event [,callback])` | remove sigle event listener all all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 
