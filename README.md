@@ -104,6 +104,8 @@ Here is another example that shows [ReactJS shopping cart synchronization](https
 
 And here is [multiple window tracking demo](https://jcubic.pl/windows.html). Open the link in multiple windows (not tabs). First window will track position and size for all windows.
 
+![Screen capture of Operating System Windows dragging and moving around animation](https://github.com/jcubic/sysend.js/blob/master/assets/windows-demo.gif?raw=true)
+
 ## API
 
 sysend object:
