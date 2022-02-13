@@ -102,6 +102,8 @@ Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows (there is
 
 Here is another example that shows [ReactJS shopping cart synchronization](https://codepen.io/jcubic/pen/QWgmBmE).
 
+And here is [multiple window tracking demo](https://jcubic.pl/windows.html). Open the link in multiple windows (not tabs). First window will track position and size for all windows.
+
 ## API
 
 sysend object:
