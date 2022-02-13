@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.8.0
+ *  sysend.js - send messages between browser windows/tabs version 1.8.1
  *
  *  Copyright (C) 2014-2021 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -380,6 +380,12 @@
         }
     }
     // -------------------------------------------------------------------------
+    function become_primary() {
+        primary = true;
+        trigger(handlers.primary);
+        sysend.emit('__primary__');
+    }
+    // -------------------------------------------------------------------------
     function init() {
         if (typeof window.BroadcastChannel === 'function') {
             channel = new window.BroadcastChannel(uniq_prefix);
@@ -441,10 +447,9 @@
             init_visiblity();
 
             sysend.track('visbility', function(visible) {
+                console.log({visible, has_primary});
                 if (visible && !has_primary) {
-                    primary = true;
-                    trigger(handlers.primary);
-                    sysend.emit('__primary__');
+                    become_primary();
                 }
             });
 
@@ -483,6 +488,11 @@
                     primary: data.wasPrimary,
                     self: data.id === target_id
                 };
+                // we need to trigger primary when tab is in different window
+                // and is not be hidden
+                if (!document.hidden) {
+                    become_primary();
+                }
                 trigger(handlers.close, payload);
             });
 
