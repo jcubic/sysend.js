@@ -128,7 +128,7 @@ To see details of using the API, see [demo.html source code](https://github.com/
 
 ## License
 
-Copyright (C) 2014-2021 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
+Copyright (C) 2014-2022 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>
