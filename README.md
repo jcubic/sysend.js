@@ -117,6 +117,7 @@ sysend object:
 | `post(<window_id>, [, object])` | send any data to other window | window_id - string of the target window<br>object - any data | 1.6.0 |
 | `list()` | returns a Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send a message with `post()` | NA | 1.6.0 |
 | `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary. | 1.6.0 |
+| `untrack(event [,callback])` | remove sigle event listener all all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
