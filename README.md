@@ -106,6 +106,23 @@ And here is [multiple window tracking demo](https://jcubic.pl/windows.html). Ope
 
 ![Screen capture of Operating System Windows dragging and moving around animation](https://github.com/jcubic/sysend.js/blob/master/assets/windows-demo.gif?raw=true)
 
+## Cross-domain Commuication Security
+
+The iframe communication proxy, allow attackers to listen to any events sent to the iframe.
+All they need to do is to use this code on any domain to connect to sysend channel:
+
+```javascript
+sysend.proxy('https://jcubic.pl/');
+window.addEventListener('message', (e) => {
+    console.log(e);
+});
+```
+
+This can lead to potential leaking of sensitive information from the website.
+As of now there are not soution how to secure sysend cross-domain communication channel.
+
+**To protect your application, don't send any sensitive infromation with cross-domain communication!**
+
 ## API
 
 sysend object:
