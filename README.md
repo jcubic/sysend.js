@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.10.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.10.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.11.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.11.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -24,12 +24,20 @@ GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
 Windows 10 64bit: in IE11 and Edge 38, Chrome 56, Firefox 51<br/>
 MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 
-## Note about Safari 7+ and Cross-Domain communication
+## Cross-Domain communication
+
+For Cross-Domain (Cross-Origin) communication you need to upload file
+[proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html) to one of the domains.  You
+need to edit that file and add Origins (or URLs) for which sysend will work.  The requirement for
+editing the file was added for security in version 1.10.0, to restrict domains that can listen and
+send message to give page.
+
+### Note about Safari 7+
 
 All cross-domain communication is disabled by default with Safari 7+.  Because of a feature that
-block 3rd party tracking for iframe, and any iframe used for cross-domain communication runs in
+block 3rd party tracking for an iframe, and any iframes used for cross-domain communication runs in
 sandboxed environment.  That's why this library like any other solution for cross-domain
-comunication, don't work on Safari.
+communication, don't work on Safari.
 
 ## Installation
 

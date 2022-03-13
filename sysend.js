@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.10.0
+ *  sysend.js - send messages between browser windows/tabs version 1.11.0
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -69,7 +69,6 @@
                     remove(event);
                 }, 0);
             }
-            send_to_iframes(event, data);
         },
         emit: function(event, data) {
             sysend.broadcast(event, data);
@@ -180,7 +179,12 @@
             });
         },
         channel: function() {
-            domains = [].slice.apply(arguments).map(origin);
+            var args = [].slice.apply(arguments).map(origin);
+            if (!domains) {
+                domains = args;
+            } else {
+                domains = domains.concat(args);
+            }
         },
         isPrimary: function() {
             return primary;
@@ -360,20 +364,6 @@
         }
     })();
     // -------------------------------------------------------------------------
-    function send_to_iframes(key, data) {
-        // propagate events to iframes
-        iframes.forEach(function(iframe) {
-            var payload = {
-              name: uniq_prefix,
-              key: key,
-              data: data
-            };
-            if (is_valid_origin(origin(iframe.node.src))) {
-                iframe.window.postMessage(JSON.stringify(payload), "*");
-            }
-        });
-    }
-    // -------------------------------------------------------------------------
     function to_json(input) {
         // save random_value in storage to fix issue in IE that storage event
         // is fired on same page where setItem was called
@@ -398,9 +388,11 @@
     }
     // -------------------------------------------------------------------------
     function invoke(key, data) {
-        callbacks[key].forEach(function(fn) {
-            fn(data, key);
-        });
+        if (callbacks[key]) {
+            callbacks[key].forEach(function(fn) {
+                fn(data, key);
+            });
+        }
     }
     // -------------------------------------------------------------------------
     function is_private_mode() {
@@ -452,14 +444,13 @@
                           data: event.data,
                           iframe_id: target_id
                         };
-                        if (is_valid_origin(origin(document.referrer))) {
+                        var referrer = origin(document.referrer);
+                        if (is_valid_origin(referrer)) {
                             window.parent.postMessage(JSON.stringify(payload), "*");
                         }
                     } else {
                         var key = event.data && event.data.name;
-                        if (callbacks[key]) {
-                            invoke(key, unserialize(event.data.data));
-                        }
+                        invoke(key, unserialize(event.data.data));
                     }
                 }
             });
@@ -494,22 +485,28 @@
             }, false);
         }
 
-        if (is_iframe) {
-            window.addEventListener('message', function(e) {
-                if (is_sysend_post_message(e) && is_valid_origin(e.origin)) {
-                    try {
-                        var payload = JSON.parse(e.data);
-                        if (payload && payload.name === uniq_prefix) {
-                            var data = unserialize(payload.data);
+        window.addEventListener('message', function(event) {
+            if (is_sysend_post_message(event) && is_valid_origin(event.origin)) {
+                try {
+                    var payload = JSON.parse(event.data);
+                    if (payload && payload.name === uniq_prefix) {
+                        var data = unserialize(payload.data);
+                        if (is_iframe) {
                             sysend.broadcast(payload.key, data);
+                        } else {
+                            if (!data.data.target) {
+                                var key = data && data.name;
+                                invoke(key, data.data);
+                            }
                         }
-                    } catch(e) {
-                        // ignore wrong JSON, the message don't came from Sysend
-                        // even that the string have unix_prefix, this is just in case
                     }
+                } catch(e) {
+                    // ignore wrong JSON, the message don't came from Sysend
+                    // even that the string have unix_prefix, this is just in case
                 }
-            });
-        } else {
+            }
+        });
+        if (!is_iframe) {
             init_visiblity();
 
             sysend.track('visbility', function(visible) {
