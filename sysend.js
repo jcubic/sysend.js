@@ -59,15 +59,22 @@
     // -------------------------------------------------------------------------
     var sysend = {
         id: target_id,
-        broadcast: function(event, data) {
+        // args is argument used internaly when sendig message inside iframe
+        broadcast: function(event, data, args) {
             if (channel) {
-                channel.postMessage({name: event, data: serialize(data)});
+                args = Object.assign(args || {}, {
+                    domains: domains
+                });
+                channel.postMessage({name: event, args: args, data: serialize(data)});
             } else {
                 set(event, to_json(data));
                 // clean up localstorage
                 setTimeout(function() {
                     remove(event);
                 }, 0);
+            }
+            if (!is_iframe) {
+                send_to_iframes(event, data);
             }
         },
         emit: function(event, data) {
@@ -83,9 +90,9 @@
             serializer.from = from;
         },
         proxy: function(url) {
+            domains = domains || [];
+            domains.push(origin(url));
             if (typeof url === 'string' && host(url) !== window.location.host) {
-                domains = domains || [];
-                domains.push(origin(url));
                 var iframe = document.createElement('iframe');
                 iframe.style.width = iframe.style.height = 0;
                 iframe.style.border = 'none';
@@ -109,7 +116,11 @@
                     } catch(e) {
                         win = iframe.contentWindow;
                     }
-                    iframes.push({window: win, node: iframe});
+                    iframes.push({
+                        window: win,
+                        node: iframe,
+                        origin: origin(iframe.src)
+                    });
                     iframe.removeEventListener('load', handler);
                 });
                 document.body.appendChild(iframe);
@@ -364,6 +375,21 @@
         }
     })();
     // -------------------------------------------------------------------------
+    function send_to_iframes(key, data) {
+        // propagate events to iframes
+        iframes.forEach(function(iframe) {
+            var payload = {
+                name: uniq_prefix,
+                key: key,
+                domains: domains,
+                data: data
+            };
+            if (is_valid_origin(origin(iframe.node.src))) {
+                iframe.window.postMessage(JSON.stringify(payload), "*");
+            }
+        });
+    }
+    // -------------------------------------------------------------------------
     function to_json(input) {
         // save random_value in storage to fix issue in IE that storage event
         // is fired on same page where setItem was called
@@ -438,6 +464,7 @@
             channel = new window.BroadcastChannel(uniq_prefix);
             channel.addEventListener('message', function(event) {
                 if (event.target.name === uniq_prefix) {
+                    var data = unserialize(event.data.data);
                     if (is_iframe) {
                         var payload = {
                           name: uniq_prefix,
@@ -445,12 +472,25 @@
                           iframe_id: target_id
                         };
                         var referrer = origin(document.referrer);
-                        if (is_valid_origin(referrer)) {
+                        var has_domain;
+                        if (event.data.args && event.data.args.domains) {
+                            has_domain = !!event.data.args.domains.find(function(origin) {
+                                return referrer === origin;
+                            });
+                            if (!has_domain) {
+                                
+                            }
+                            
+                        }
+                        var has_iframe = !!iframes.find(function(iframe) {
+                            return iframe.origin === referrer;
+                        });
+                        if (is_valid_origin(referrer) && has_iframe) {
                             window.parent.postMessage(JSON.stringify(payload), "*");
                         }
                     } else {
                         var key = event.data && event.data.name;
-                        invoke(key, unserialize(event.data.data));
+                        invoke(key, data);
                     }
                 }
             });
@@ -486,17 +526,26 @@
         }
 
         window.addEventListener('message', function(event) {
+            console.log({from_frame: event, is_iframe});
             if (is_sysend_post_message(event) && is_valid_origin(event.origin)) {
                 try {
                     var payload = JSON.parse(event.data);
                     if (payload && payload.name === uniq_prefix) {
                         var data = unserialize(payload.data);
                         if (is_iframe) {
-                            sysend.broadcast(payload.key, data);
+                            console.log({payload});
+                            sysend.broadcast(payload.key, data, payload.domains);
                         } else {
+                            console.log({payload, data, event});
                             if (!data.data.target) {
-                                var key = data && data.name;
-                                invoke(key, data.data);
+                                var has_iframe = !!iframes.find(function(iframe) {
+                                    return iframe.origin === event.origin;
+                                });
+                                console.log({iframes, has_iframe, valid: is_valid_origin(event.origin), event});
+                                if (!has_iframe || is_valid_origin(event.origin)) {
+                                    var key = data && data.name;
+                                    invoke(key, data.data);
+                                }
                             }
                         }
                     }
@@ -506,6 +555,7 @@
                 }
             }
         });
+        return;
         if (!is_iframe) {
             init_visiblity();
 
@@ -578,7 +628,7 @@
             addEventListener('beforeunload', function() {
                 sysend.emit('__close__', { id: target_id, wasPrimary: primary });
             }, { capture: true });
-
+            
             on_load().then(function() {
                 sysend.list().then(function(list) {
                     target_count = list.length;
