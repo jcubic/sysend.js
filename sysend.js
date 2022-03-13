@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.9.0
+ *  sysend.js - send messages between browser windows/tabs version 1.10.0
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -41,6 +41,7 @@
     // id of the window/tab
     var target_id = generate_uuid();
     var target_count = 1;
+    var domains;
 
     var handlers = {
         primary: [],
@@ -84,6 +85,8 @@
         },
         proxy: function(url) {
             if (typeof url === 'string' && host(url) !== window.location.host) {
+                domains = domains || [];
+                domains.push(origin(url));
                 var iframe = document.createElement('iframe');
                 iframe.style.width = iframe.style.height = 0;
                 iframe.style.border = 'none';
@@ -176,6 +179,9 @@
                 });
             });
         },
+        channel: function() {
+            domains = [].slice.apply(arguments).map(origin);
+        },
         isPrimary: function() {
             return primary;
         }
@@ -207,8 +213,6 @@
         };
     })();
     // -------------------------------------------------------------------------
-    init();
-    // -------------------------------------------------------------------------
     function delay(time) {
         return function() {
             return new Promise(function(resolve) {
@@ -217,13 +221,37 @@
         };
     }
     // -------------------------------------------------------------------------
-    function onLoad() {
-        return new Promise(function(resolve) {
-            window.addEventListener('load', resolve, true);
-        }).then(iframeLoaded);
+    var origin = (function() {
+        var a = document.createElement('a');
+        return function origin(url) {
+            a.href = url;
+            return a.origin;
+        };
+    })();
+    // -------------------------------------------------------------------------
+    // :: show only single message of this kind
+    // -------------------------------------------------------------------------
+    var warn_messages = [];
+    function warn(message) {
+        if (!warn_messages.includes(message)) {
+            warn_messages.push(message);
+            if (console && console.warn) {
+                console.warn(message);
+            } else {
+                setTimeout(function() {
+                    throw new Error(message);
+                }, 0);
+            }
+        }
     }
     // -------------------------------------------------------------------------
-    function iframeLoaded() {
+    function on_load() {
+        return new Promise(function(resolve) {
+            window.addEventListener('load', resolve, true);
+        }).then(iframe_loaded);
+    }
+    // -------------------------------------------------------------------------
+    function iframe_loaded() {
         var iframes = Array.from(document.querySelectorAll('iframe'));
         return Promise.all(iframes.filter(function(iframe) {
             return iframe.src;
@@ -239,8 +267,30 @@
         // the number was pick by experimentation
     }
     // -------------------------------------------------------------------------
-    // ref: https://stackoverflow.com/a/8809472/387194
-    // license: Public Domain/MIT
+    // :: valid sysend message
+    // -------------------------------------------------------------------------
+    function is_sysend_post_message(e) {
+        return typeof e.data === 'string' && e.data.match(prefix_re);
+    }
+    // -------------------------------------------------------------------------
+    function is_valid_origin(origin) {
+        if (!domains) {
+            warn('Call sysend.channel() on iframe to restrict domains that can '+
+                 'use sysend channel');
+            return true;
+        }
+        var valid = domains.includes(origin);
+        if (!valid) {
+            warn(origin + ' domain is not on the list of allowed '+
+                 'domains use sysend.channel() on iframe to allow'+
+                 ' access to this domain');
+        }
+        return valid;
+    }
+    // -------------------------------------------------------------------------
+    // :: ref: https://stackoverflow.com/a/8809472/387194
+    // :: license: Public Domain/MIT
+    // -------------------------------------------------------------------------
     function generate_uuid() {
         var d = new Date().getTime();
         //Time in microseconds since page-load or 0 if unsupported
@@ -295,20 +345,20 @@
                 }
                 return data;
             } catch (e) {
-                console.warn(prefix_message + e.message);
+                warn(prefix_message + e.message);
             }
         };
     }
     // -------------------------------------------------------------------------
     // ref: https://stackoverflow.com/a/326076/387194
     // -------------------------------------------------------------------------
-    function is_iframe() {
+    var is_iframe = (function is_iframe() {
         try {
             return window.self !== window.top;
         } catch (e) {
             return true;
         }
-    }
+    })();
     // -------------------------------------------------------------------------
     function send_to_iframes(key, data) {
         // propagate events to iframes
@@ -318,7 +368,9 @@
               key: key,
               data: data
             };
-            iframe.window.postMessage(JSON.stringify(payload), "*");
+            if (is_valid_origin(origin(iframe.node.src))) {
+                iframe.window.postMessage(JSON.stringify(payload), "*");
+            }
         });
     }
     // -------------------------------------------------------------------------
@@ -387,21 +439,34 @@
         sysend.emit('__primary__');
     }
     // -------------------------------------------------------------------------
+    init();
+    // -------------------------------------------------------------------------
     function init() {
         if (typeof window.BroadcastChannel === 'function') {
             channel = new window.BroadcastChannel(uniq_prefix);
             channel.addEventListener('message', function(event) {
                 if (event.target.name === uniq_prefix) {
-                    var key = event.data && event.data.name;
-                    if (callbacks[key]) {
-                        invoke(key, unserialize(event.data.data));
+                    if (is_iframe) {
+                        var payload = {
+                          name: uniq_prefix,
+                          data: event.data,
+                          iframe_id: target_id
+                        };
+                        if (is_valid_origin(origin(document.referrer))) {
+                            window.parent.postMessage(JSON.stringify(payload), "*");
+                        }
+                    } else {
+                        var key = event.data && event.data.name;
+                        if (callbacks[key]) {
+                            invoke(key, unserialize(event.data.data));
+                        }
                     }
                 }
             });
         } else if (is_private_mode()) {
-            console.warn('Your browser don\'t support localStorgage. ' +
-                         'In Safari this is most of the time because ' +
-                         'of "Private Browsing Mode"');
+            warn('Your browser don\'t support localStorgage. ' +
+                 'In Safari this is most of the time because ' +
+                 'of "Private Browsing Mode"');
         } else {
             // we need to clean up localStorage if broadcast called on unload
             // because setTimeout will never fire, even setTimeout 0
@@ -429,9 +494,9 @@
             }, false);
         }
 
-        if (is_iframe()) {
+        if (is_iframe) {
             window.addEventListener('message', function(e) {
-                if (typeof e.data === 'string' && e.data.match(prefix_re)) {
+                if (is_sysend_post_message(e) && is_valid_origin(e.origin)) {
                     try {
                         var payload = JSON.parse(e.data);
                         if (payload && payload.name === uniq_prefix) {
@@ -448,7 +513,6 @@
             init_visiblity();
 
             sysend.track('visbility', function(visible) {
-                console.log({visible, has_primary});
                 if (visible && !has_primary) {
                     become_primary();
                 }
@@ -518,7 +582,7 @@
                 sysend.emit('__close__', { id: target_id, wasPrimary: primary });
             }, { capture: true });
 
-            onLoad().then(function() {
+            on_load().then(function() {
                 sysend.list().then(function(list) {
                     target_count = list.length;
                     primary = list.length === 0;
