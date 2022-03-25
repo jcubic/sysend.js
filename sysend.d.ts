@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.10.0
+ *  sysend.js - send messages between browser windows/tabs version 1.11.0
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -13,7 +13,7 @@ interface Sysend {
     emit(event: string, data?: any): void;
     on(event: string, callback: callback): void;
     off(event: string, callback?: callback): void;
-    proxy(url: string): void;
+    proxy(args?: string[]): void;
     serializer(to: (data: any) => string, from: (data: string) => any): void;
     track(event: 'open', callback: (data: {id: string, count: number, primary: boolean}) => void): void;
     track(event: 'close', callback: (data: {id: string, count: number, primary: boolean, self: boolean}) => void): void;
