@@ -29,6 +29,7 @@
     var has_primary;
     var iframes = [];
     var index = 0;
+    var proxy_mode = false;
     var channel;
     var primary = true;
     // we use id because storage event is not executed if message was not
@@ -83,38 +84,43 @@
             serializer.to = to;
             serializer.from = from;
         },
-        proxy: function(url) {
-            if (typeof url === 'string' && host(url) !== window.location.host) {
-                domains = domains || [];
-                domains.push(origin(url));
-                var iframe = document.createElement('iframe');
-                iframe.style.width = iframe.style.height = 0;
-                iframe.style.border = 'none';
-                var proxy_url = url;
-                if (!url.match(/\.html$/)) {
-                    proxy_url = url.replace(/\/$/, '') + '/proxy.html';
-                }
-                iframe.addEventListener('error', function handler() {
-                    setTimeout(function() {
-                        throw new Error('html proxy file not found on "' + url +
-                                        '" url');
-                    }, 0);
-                    iframe.removeEventListener('error', handler);
-                });
-                iframe.addEventListener('load', function handler() {
-                    var win;
-                    // fix for Safari
-                    // https://stackoverflow.com/q/42632188/387194
-                    try {
-                        win = iframe.contentWindow;
-                    } catch(e) {
-                        win = iframe.contentWindow;
+        proxy: function() {
+            [].slice.call(arguments).forEach(function(url) {
+                if (typeof url === 'string' && host(url) !== window.location.host) {
+                    domains = domains || [];
+                    domains.push(origin(url));
+                    var iframe = document.createElement('iframe');
+                    iframe.style.width = iframe.style.height = 0;
+                    iframe.style.border = 'none';
+                    var proxy_url = url;
+                    if (!url.match(/\.html$/)) {
+                        proxy_url = url.replace(/\/$/, '') + '/proxy.html';
                     }
-                    iframes.push({window: win, node: iframe});
-                    iframe.removeEventListener('load', handler);
-                });
-                document.body.appendChild(iframe);
-                iframe.src = proxy_url;
+                    iframe.addEventListener('error', function handler() {
+                        setTimeout(function() {
+                            throw new Error('html proxy file not found on "' + url +
+                                            '" url');
+                        }, 0);
+                        iframe.removeEventListener('error', handler);
+                    });
+                    iframe.addEventListener('load', function handler() {
+                        var win;
+                        // fix for Safari
+                        // https://stackoverflow.com/q/42632188/387194
+                        try {
+                            win = iframe.contentWindow;
+                        } catch(e) {
+                            win = iframe.contentWindow;
+                        }
+                        iframes.push({window: win, node: iframe});
+                        iframe.removeEventListener('load', handler);
+                    });
+                    document.body.appendChild(iframe);
+                    iframe.src = proxy_url;
+                }
+            });
+            if (!arguments.length && is_iframe) {
+                proxy_mode = true;
             }
         },
         on: function(event, fn) {
@@ -360,6 +366,10 @@
         }
     })();
     // -------------------------------------------------------------------------
+    function is_proxy_iframe() {
+        return is_iframe && proxy_mode;
+    }
+    // -------------------------------------------------------------------------
     function send_to_iframes(key, data) {
         // propagate events to iframes
         iframes.forEach(function(iframe) {
@@ -439,14 +449,16 @@
         sysend.emit('__primary__');
     }
     // -------------------------------------------------------------------------
-    init();
+    window.addEventListener('load', function() {
+        setTimeout(init, 0);
+    });
     // -------------------------------------------------------------------------
     function init() {
         if (typeof window.BroadcastChannel === 'function') {
             channel = new window.BroadcastChannel(uniq_prefix);
             channel.addEventListener('message', function(event) {
                 if (event.target.name === uniq_prefix) {
-                    if (is_iframe) {
+                    if (is_proxy_iframe()) {
                         var payload = {
                           name: uniq_prefix,
                           data: event.data,
@@ -494,7 +506,7 @@
             }, false);
         }
 
-        if (is_iframe) {
+        if (is_proxy_iframe()) {
             window.addEventListener('message', function(e) {
                 if (is_sysend_post_message(e) && is_valid_origin(e.origin)) {
                     try {
