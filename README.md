@@ -95,13 +95,12 @@ sysend.serializer(function(data) {
 });
 ````
 
-## Demo
+## Demos
 
-Open this [demo page](http://jcubic.pl/sysend.php) in two tabs/windows (there is also link to other domain).
-
-Here is another example that shows [ReactJS shopping cart synchronization](https://codepen.io/jcubic/pen/QWgmBmE).
-
-And here is [multiple window tracking demo](https://jcubic.pl/windows.html). Open the link in multiple windows (not tabs). First window will track position and size for all windows.
+* [Simple demo using iframes](https://jcubic.pl/sysend-demo/).
+* [All feature demo](http://jcubic.pl/sysend.php) (this one require open in two tabs/windows, there is also link to other domain).
+* [ReactJS shopping cart synchronization](https://codepen.io/jcubic/pen/QWgmBmE).
+* [multiple window tracking demo](https://jcubic.pl/windows.html). Open the link in multiple windows (not tabs). First window will track position and size for all windows.
 
 ![Screen capture of Operating System Windows dragging and moving around animation](https://github.com/jcubic/sysend.js/blob/master/assets/windows-demo.gif?raw=true)
 
