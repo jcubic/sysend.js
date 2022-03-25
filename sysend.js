@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.11.0
+ *  sysend.js - send messages between browser windows/tabs version 1.11.1
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -251,12 +251,6 @@
         }
     }
     // -------------------------------------------------------------------------
-    function on_load() {
-        return new Promise(function(resolve) {
-            window.addEventListener('load', resolve, true);
-        }).then(iframe_loaded);
-    }
-    // -------------------------------------------------------------------------
     function iframe_loaded() {
         var iframes = Array.from(document.querySelectorAll('iframe'));
         return Promise.all(iframes.filter(function(iframe) {
@@ -269,8 +263,8 @@
                 iframe.addEventListener('error', reject, true);
             });
         })).then(delay(sysend.timeout));
-        // delay is required, something with browser is not intitled properly
-        // the number was pick by experimentation
+        // delay is required, something with browser, it's not intialized
+        // properly. The number was picked by experimentation
     }
     // -------------------------------------------------------------------------
     // :: valid sysend message
@@ -594,7 +588,7 @@
                 sysend.emit('__close__', { id: target_id, wasPrimary: primary });
             }, { capture: true });
 
-            on_load().then(function() {
+            iframe_loaded().then(function() {
                 sysend.list().then(function(list) {
                     target_count = list.length;
                     primary = list.length === 0;
