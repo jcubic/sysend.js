@@ -564,7 +564,7 @@
                 };
                 // we need to trigger primary when tab is in different window
                 // and is not be hidden
-                if (!document.hidden) {
+                if (last) {
                     become_primary();
                 }
                 trigger(handlers.close, payload);
