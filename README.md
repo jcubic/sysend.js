@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.10.0-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.10.0-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.11.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.11.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -114,7 +114,7 @@ sysend object:
 | `on(name, callback)` | add event handler for specified name | name - `string` - The name of the event<br>callback - function `(object, name) => void` | 1.0.0 |
 | `off(name [, callback])` | remove event handler for given name, if callback is not specified it will remove all callbacks for given name | name - `string` - The name of the event<br>callback - optional function `(object, name) => void` | 1.0.0 |
 | `broadcast(name [, object])` | send any object and fire all events with specified name (in different pages that register callback using on). You can also just send notification without an object | name - string - The name of the event<br>object - optional any data | 1.0.0 |
-| `proxy(url)` | create iframe proxy for different domain, the target domain/URL should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html)<br> file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both | url - string | 1.3.0 |
+| `proxy(<urls>)` | create iframe proxy for different domain, the target domain/URL should have [proxy.html](https://github.com/jcubic/sysend.js/blob/master/proxy.html)<br> file. If url domain is the same as page domain, it's ignored. So you can put both proxy calls on both | url - string | 1.3.0 |
 | `serializer(to_string, from_string)` | add serializer and deserializer functions | both arguments are functions (data: any) => string | 1.4.0 |
 | `emit(name, [, object])` | same as `broadcast()` but also invoke the even on same page | name - string - The name of the event<br>object - optional any data | 1.5.0 |
 | `post(<window_id>, [, object])` | send any data to other window | window_id - string of the target window<br>object - any data | 1.6.0 |
