@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.11.1
+ *  sysend.js - send messages between browser windows/tabs version 1.12.0
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -71,10 +71,12 @@
                 }, 0);
             }
             send_to_iframes(event, data);
+            return sysend;
         },
         emit: function(event, data) {
             sysend.broadcast(event, data);
             invoke(event, data);
+            return sysend;
         },
         serializer: function(to, from) {
             if (typeof to !== 'function' || typeof from !== 'function') {
@@ -83,6 +85,7 @@
             }
             serializer.to = to;
             serializer.from = from;
+            return sysend;
         },
         proxy: function() {
             [].slice.call(arguments).forEach(function(url) {
@@ -122,12 +125,14 @@
             if (!arguments.length && is_iframe) {
                 proxy_mode = true;
             }
+            return sysend;
         },
         on: function(event, fn) {
             if (!callbacks[event]) {
                 callbacks[event] = [];
             }
             callbacks[event].push(fn);
+            return sysend;
         },
         off: function(event, fn) {
             if (callbacks[event]) {
@@ -141,11 +146,13 @@
                     callbacks[event] = [];
                 }
             }
+            return sysend;
         },
         track: function(event, fn) {
             if (events.includes(event)) {
                 handlers[event].push(fn);
             }
+            return sysend;
         },
         untrack: function(event, fn) {
             if (events.includes(event) && handlers[event].length) {
@@ -157,9 +164,10 @@
                     });
                 }
             }
+            return sysend;
         },
         post: function(target, data) {
-            sysend.broadcast('__message__', {
+            return sysend.broadcast('__message__', {
                 target: target,
                 data: data,
                 origin: target_id
@@ -187,6 +195,7 @@
         },
         channel: function() {
             domains = [].slice.apply(arguments).map(origin);
+            return sysend;
         },
         isPrimary: function() {
             return primary;
