@@ -104,6 +104,10 @@ sysend.serializer(function(data) {
 
 ![Screen capture of Operating System Windows dragging and moving around animation](https://github.com/jcubic/sysend.js/blob/master/assets/windows-demo.gif?raw=true)
 
+## Articles
+* [CSRF Protection Problem and How to Fix it](https://www.freecodecamp.org/news/csrf-protection-problem-and-how-to-fix-it/)
+* [Synchronizacja stanu aplikacji www między zakładkami](https://bulldogjob.pl/news/1804-synchronizacja-stanu-aplikacji-www-miedzy-zakladkami)
+
 ## API
 
 sysend object:
@@ -122,7 +126,6 @@ sysend object:
 | `untrack(event [,callback])` | remove sigle event listener all all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 | `channel()` | function restrict cross domain communication to only allowed domains. You need to call this function on proxy iframe to limit number of domains (origins) that can listen and send events.  | any number of origins (e.g. 'http://localhost:8080' or 'https://jcubic.github.io') you can also use valid URL. | 1.10.0 |
-
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 
