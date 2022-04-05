@@ -58,7 +58,7 @@ or jsDelivr:
 https://cdn.jsdelivr.net/npm/sysend
 ```
 
-jsDelivr will minify the file. From my testing it's faster then unpkg.com.
+jsDelivr will minify the file. From my testing it's faster than unpkg.com.
 
 ## Usage
 
