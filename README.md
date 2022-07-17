@@ -129,6 +129,10 @@ sysend object:
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 
+## Story
+
+The story of this library came from my question on StackOverflow in 2014: [https://stackoverflow.com/q/24182409/387194](Sending notifications between instances of the page in the same browser), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog). The name of the library is just random word "sy" and "send" suffix.
+
 ## License
 
 Copyright (C) 2014-2022 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
