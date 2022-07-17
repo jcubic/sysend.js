@@ -131,7 +131,9 @@ To see details of using the API, see [demo.html source code](https://github.com/
 
 ## Story
 
-The story of this library came from my question on StackOverflow in 2014: [https://stackoverflow.com/q/24182409/387194](Sending notifications between instances of the page in the same browser), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog). The name of the library is just random word "sy" and "send" suffix.
+The story of this library came from my question on StackOverflow in 2014: [Sending notifications between instances of the page in the same browser](https://stackoverflow.com/q/24182409/387194), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog).
+
+And the name of the library is just random word "sy" and "send" suffix.
 
 ## License
 
