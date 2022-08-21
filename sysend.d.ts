@@ -13,7 +13,7 @@ interface Sysend {
     emit(event: string, data?: any): void;
     on(event: string, callback: callback): void;
     off(event: string, callback?: callback): void;
-    proxy(args?: string[]): void;
+    proxy(...args: string[]): void;
     serializer(to: (data: any) => string, from: (data: string) => any): void;
     track(event: 'open', callback: (data: {id: string, count: number, primary: boolean}) => void): void;
     track(event: 'close', callback: (data: {id: string, count: number, primary: boolean, self: boolean}) => void): void;
