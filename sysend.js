@@ -452,7 +452,11 @@
         sysend.emit('__primary__');
     }
     // -------------------------------------------------------------------------
-    if (document.readyState === 'complete') {
+    function document_ready() {
+        return ['interactive', 'complete'].indexOf(document.readyState) !== -1;
+    }
+    // -------------------------------------------------------------------------
+    if (document_ready()) {
         init();
     } else {
         window.addEventListener('load', function() {
