@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.12.3-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.12.3-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.14.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.14.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -126,6 +126,8 @@ sysend object:
 | `untrack(event [,callback])` | remove sigle event listener all all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 | `channel()` | function restrict cross domain communication to only allowed domains. You need to call this function on proxy iframe to limit number of domains (origins) that can listen and send events.  | any number of origins (e.g. 'http://localhost:8080' or 'https://jcubic.github.io') you can also use valid URL. | 1.10.0 |
+| `useLocalStorage([boolean])` | Function set or toggle localStorage mode, the argument is optional.  | argument is optional and can be true or false. | 1.14.0 |
+
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 

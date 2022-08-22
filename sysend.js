@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.12.3
+ *  sysend.js - send messages between browser windows/tabs version 1.14.0
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -32,6 +32,7 @@
     var proxy_mode = false;
     var channel;
     var primary = true;
+    var force_ls = false;
     // we use id because storage event is not executed if message was not
     // changed, and we want it if user send same object twice (before it will
     // be removed)
@@ -61,7 +62,7 @@
     var sysend = {
         id: target_id,
         broadcast: function(event, data) {
-            if (channel) {
+            if (channel && !force_ls) {
                 channel.postMessage({name: event, data: serialize(data)});
             } else {
                 set(event, to_json(data));
@@ -199,7 +200,14 @@
         },
         isPrimary: function() {
             return primary;
-        }
+        },
+        useLocalStorage: function(toggle) {
+            if (typeof toggle === 'boolean') {
+                force_ls = toggle;
+            } else {
+                force_ls = true;
+            }
+        },
     };
     // -------------------------------------------------------------------------
     Object.defineProperty(sysend, 'timeout', {
@@ -369,6 +377,16 @@
         }
     })();
     // -------------------------------------------------------------------------
+    var is_private_mode = (function is_private_mode() {
+        try {
+            localStorage.setItem(uniq_prefix, 1);
+            localStorage.removeItem(uniq_prefix);
+            return false;
+        } catch (e) {
+            return true;
+        }
+    })();
+    // -------------------------------------------------------------------------
     function is_proxy_iframe() {
         return is_iframe && proxy_mode;
     }
@@ -416,16 +434,6 @@
         });
     }
     // -------------------------------------------------------------------------
-    function is_private_mode() {
-        try {
-            localStorage.setItem(uniq_prefix, 1);
-            localStorage.removeItem(uniq_prefix);
-            return false;
-        } catch (e) {
-            return true;
-        }
-    }
-    // -------------------------------------------------------------------------
     function init_visiblity() {
         // ref: https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
         var hidden, visibilityChange;
@@ -463,6 +471,32 @@
             setTimeout(init, 0);
         });
     }
+    function setup_ls() {
+        // we need to clean up localStorage if broadcast called on unload
+        // because setTimeout will never fire, even setTimeout 0
+        var re = new RegExp('^' + uniq_prefix);
+        for(var key in localStorage) {
+            if (key.match(re)) {
+                localStorage.removeItem(key);
+            }
+        }
+        window.addEventListener('storage', function(e) {
+            // prevent event to be executed on remove in IE
+            if (e.key.match(re) && index++ % 2 === 0) {
+                var key = e.key.replace(re, '');
+                if (callbacks[key]) {
+                    var value = e.newValue || get(key);
+                    if (value && value != random_value) {
+                        var obj = from_json(value);
+                        // don't call on remove
+                        if (obj && obj[1] != random_value) {
+                            invoke(key, obj[2]);
+                        }
+                    }
+                }
+            }
+        }, false);
+    }
     // -------------------------------------------------------------------------
     function init() {
         if (typeof window.BroadcastChannel === 'function') {
@@ -486,35 +520,13 @@
                     }
                 }
             });
-        } else if (is_private_mode()) {
+        } else if (is_private_mode) {
             warn('Your browser don\'t support localStorgage. ' +
                  'In Safari this is most of the time because ' +
                  'of "Private Browsing Mode"');
-        } else {
-            // we need to clean up localStorage if broadcast called on unload
-            // because setTimeout will never fire, even setTimeout 0
-            var re = new RegExp('^' + uniq_prefix);
-            for(var key in localStorage) {
-                if (key.match(re)) {
-                    localStorage.removeItem(key);
-                }
-            }
-            window.addEventListener('storage', function(e) {
-                // prevent event to be executed on remove in IE
-                if (e.key.match(re) && index++ % 2 === 0) {
-                    var key = e.key.replace(re, '');
-                    if (callbacks[key]) {
-                        var value = e.newValue || get(key);
-                        if (value && value != random_value) {
-                            var obj = from_json(value);
-                            // don't call on remove
-                            if (obj && obj[1] != random_value) {
-                                invoke(key, obj[2]);
-                            }
-                        }
-                    }
-                }
-            }, false);
+        }
+        if (!is_private_mode) {
+            setup_ls();
         }
 
         if (is_proxy_iframe()) {
