@@ -245,6 +245,11 @@
     }
     // -------------------------------------------------------------------------
     var origin = (function() {
+        if (window.URL) {
+            return function(url) {
+                return new URL(url).origin;
+            };
+        }
         var a = document.createElement('a');
         return function origin(url) {
             a.href = url;
