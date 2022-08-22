@@ -47,6 +47,10 @@
          var a = document.getElementById('a');
          var b = document.getElementById('b');
          var c = document.getElementById('c');
+         var ls = document.getElementById('ls');
+         ls.onchange = function() {
+             sysend.useLocalStorage(ls.checked);
+         };
          var input = document.querySelector('#msg');
          a.onclick = function() {
              sysend.broadcast('foo', {message: input.value});
@@ -61,8 +65,11 @@
                  sysend.post(targed_id, msg2.value);
              }
          };
-         sysend.proxy('https://jcubic.pl');
-         sysend.proxy('https://terminal.jcubic.pl');
+         sysend.proxy(
+             'file:///',
+             'https://jcubic.pl',
+             'https://terminal.jcubic.pl'
+         );
          sysend.track('open', function(data) {
              var target_type = data.primary ? 'primary' : 'secondary';
              track('open: ' + id(data.id) + ' [' + target_type + ']');
@@ -110,6 +117,11 @@
     <input id="msg" />
     <button id="a">object {message}</button>
     <button id="b">empty</button>
+    <div>
+      <label for="ls">Use LocalStorage</label>
+      <input type="checkbox" id="ls" />
+    </div>
+    <br/>
     <pre id="message"></pre>
     <h2>Window/tabs tracking</h2>
     <pre>count: <span id="windows"></span></pre>
