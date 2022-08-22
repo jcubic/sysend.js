@@ -40,7 +40,7 @@
     // identifier for making each call to list unique
     var list_id = 0;
 
-    // id of the window/tab
+    // id of the window/tabAnd two-way communication is tracked in 
     var target_id = generate_uuid();
     var target_count = 1;
     var domains;
@@ -608,7 +608,9 @@
             });
 
             sysend.on('__message__', function(data) {
-                if (data.target === target_id) {
+                if (data.target === 'primary' && primary) {
+                    trigger(handlers.message, data);
+                } else if (data.target === target_id) {
                     trigger(handlers.message, data);
                 }
             });
