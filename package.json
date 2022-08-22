@@ -1,6 +1,6 @@
 {
   "name": "sysend",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Web application synchronization between different tabs",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
