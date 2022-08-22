@@ -22,7 +22,7 @@
          function id(uuid) {
              return '{id: ' + uuid + '}';
          }
-         var message = log(document.querySelector('#messages'));
+         var message = log(document.querySelector('#message'));
          var track = log(document.querySelector('#track'));
          sysend.on('foo', function(obj) {
              message('just get event "foo" with message: ' + obj.message);
