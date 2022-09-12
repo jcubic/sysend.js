@@ -74,6 +74,8 @@ window.onload = function() {
 };
 ```
 
+### Cross-Domain comunication
+
 If you want to add support for Cross-Domain communication, you need to call proxy method with url on target domain
 that have [proxy.html file](https://github.com/jcubic/sysend.js/blob/master/proxy.html).
 
@@ -82,7 +84,15 @@ sysend.proxy('https://jcubic.pl');
 sysend.proxy('https://terminal.jcubic.pl');
 ```
 
-on Firefox you need to add **CORS** for the proxy.html that will be loaded into iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/))
+on Firefox you need to add **CORS** for the proxy.html that will be loaded into iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/)).
+
+### Security protection
+
+Since version 1.10.0 as a security mesure Cross-Domain communication has been limited to only those domains that are allowed.
+To allow domain to listen to sysend communication you need to specify channel inside iframe. You need add your origins to the
+`sysend.channel()` function (origin is combination of protocol domain and optional port).
+
+### Serialization
 
 if you want to send custom data you can use serializer (new in 1.4.0).
 Example serializer can be [json-dry](https://github.com/11ways/json-dry).
