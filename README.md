@@ -29,7 +29,7 @@ MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 All cross-domain communication is disabled by default with Safari 7+.  Because of a feature that
 block 3rd party tracking for iframe, and any iframe used for cross-domain communication runs in
 sandboxed environment.  That's why this library like any other solution for cross-domain
-comunication, don't work on Safari.
+communication, don't work on Safari.
 
 ## Installation
 
@@ -74,7 +74,7 @@ window.onload = function() {
 };
 ```
 
-### Cross-Domain comunication
+### Cross-Domain communication
 
 If you want to add support for Cross-Domain communication, you need to call proxy method with url on target domain
 that have [proxy.html file](https://github.com/jcubic/sysend.js/blob/master/proxy.html).
