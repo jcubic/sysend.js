@@ -1,5 +1,5 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.14.2
+ *  sysend.js - send messages between browser windows/tabs version 1.14.3
  *
  *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
@@ -40,7 +40,7 @@
     // identifier for making each call to list unique
     var list_id = 0;
 
-    // id of the window/tabAnd two-way communication is tracked in 
+    // id of the window/tabAnd two-way communication is tracked in
     var target_id = generate_uuid();
     var target_count = 1;
     var domains;
@@ -95,6 +95,8 @@
                     domains.push(origin(url));
                     var iframe = document.createElement('iframe');
                     iframe.style.width = iframe.style.height = 0;
+                    iframe.style.position = 'absolute';
+                    iframe.style.top = iframe.style.left = '-9999px';
                     iframe.style.border = 'none';
                     var proxy_url = url;
                     if (!url.match(/\.html$/)) {
@@ -225,12 +227,18 @@
     var host = (function() {
         if (typeof URL !== 'undefined') {
             return function(url) {
+                if (!url) {
+                    return url;
+                }
                 url = new URL(url);
                 return url.host;
             };
         }
         var a = document.createElement('a');
         return function(url) {
+            if (!url) {
+                return url;
+            }
             a.href = url;
             return a.host;
         };
@@ -245,16 +253,25 @@
     }
     // -------------------------------------------------------------------------
     var origin = (function() {
-        if (window.URL) {
-            return function(url) {
-                return new URL(url).origin;
+        function tc(f) {
+            return function origin(url) {
+                try {
+                    return f(url);
+                } catch(e) {
+                    return url;
+                }
             };
         }
+        if (window.URL) {
+            return tc(function origin(url) {
+                return new URL(url).origin;
+            });
+        }
         var a = document.createElement('a');
-        return function origin(url) {
+        return tc(function origin(url) {
             a.href = url;
             return a.origin;
-        };
+        });
     })();
     // -------------------------------------------------------------------------
     // :: show only single message of this kind
