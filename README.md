@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.14.2-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.14.2-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.14.3-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.14.3-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -94,14 +94,26 @@ To allow domain to listen to sysend communication you need to specify channel in
 
 ### Serialization
 
-if you want to send custom data you can use serializer (new in 1.4.0).
-Example serializer can be [json-dry](https://github.com/11ways/json-dry).
+if you want to send custom data you can use serializer (new in 1.4.0) this API
+was created for localStorage that needs serialization.
+
+Example serializer can be [json-dry](https://github.com/11ways/json-dry):
 
 ```javascript
 sysend.serializer(function(data) {
     return Dry.stringify(data);
 }, function(string) {
     return Dry.parse(string);
+});
+````
+
+or [JSON5](https://json5.org/):
+
+```javascript
+sysend.serializer(function(data) {
+    return JSON5.stringify(string);
+}, function(string) {
+    return JSON5.parse(string);
 });
 ````
 
@@ -143,7 +155,7 @@ To see details of using the API, see [demo.html source code](https://github.com/
 
 ## Story
 
-The story of this library came from my question on StackOverflow in 2014: [Sending notifications between instances of the page in the same browser](https://stackoverflow.com/q/24182409/387194), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I quickly created a library from my solution. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog).
+The story of this library came from my question on StackOverflow from 2014: [Sending notifications between instances of the page in the same browser](https://stackoverflow.com/q/24182409/387194), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I quickly created a library from my solution. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog).
 
 And the name of the library is just random word "sy" and "send" suffix. But it can be an backronym for **Synchronizing Send** as in sychronizing application between browser tabs.
 
