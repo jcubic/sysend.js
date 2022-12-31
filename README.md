@@ -130,6 +130,13 @@ sysend.serializer(function(data) {
 * [CSRF Protection Problem and How to Fix it](https://www.freecodecamp.org/news/csrf-protection-problem-and-how-to-fix-it/)
 * [Synchronizacja stanu aplikacji www między zakładkami](https://bulldogjob.pl/news/1804-synchronizacja-stanu-aplikacji-www-miedzy-zakladkami)
 
+## Press
+The library was featured in:
+* [Web Tools Weekly](https://webtoolsweekly.com/archives/issue-378/)
+* [JavaScript Weekly](https://javascriptweekly.com/issues/581)
+* [Impressive Webs](https://www.impressivewebs.com/most-interesting-front-end-developer-tools-2021/)
+* [Front-end Architecture](https://frontend-architecture.com/2022/03/30/messaging-between-browser-tabs/)
+
 ## API
 
 sysend object:
