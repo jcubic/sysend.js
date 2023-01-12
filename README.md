@@ -76,7 +76,7 @@ window.onload = function() {
 
 ### Windows/tabs tracking
 
-Tracking is high level API build on top of `on()` and `broadcast()`, that allows to manage windows/tabs. You can sent message directly to other windows:
+Tracking is high level API build on top of `on()` and `broadcast()`, that allows to manage windows/tabs. You can sent message directly to other windows/tabs:
 
 ```javascript
 sysend.track('message', ({data, origin}) => {
@@ -105,7 +105,7 @@ sysend.track('ready', () => {
 
 with `list()` method and `open`/`close` events you can implement dynamic list of windows/tab. That will change when new window/tab is open or close.
 
-In version 1.15.0 new API was added called `rpc` that allow to implement RPC (Remote Procedure Call) between open windows/tabs.
+In version 1.15.0 new API was added called `rpc()` (build on top of tracking mechanism) that allow to use RPC (Remote Procedure Call) between open windows/tabs.
 
 ```javascript
 const rpc = sysend.rpc({
