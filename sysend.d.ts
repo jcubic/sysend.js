@@ -1,7 +1,7 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.14.3
+ *  sysend.js - send messages between browser windows/tabs version 1.15.0
  *
- *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
+ *  Copyright (C) 2014-2023 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
  *
  */
@@ -25,7 +25,13 @@ interface Sysend {
     post(target: string, data?: any): void;
     channel(...domains: string[]): void;
     isPrimary(): boolean;
+    rpc<T extends Array<unknown>, U>(object: Record<string, (...args: T) => U>): Promise<Record<string, (id: string, ...args: T) => Promise<U>>>
 }
+
+//Promise<Record<string, (id: string, ...args: T) => Promise<U>>;
+
+//type RPC<args extend Array
+
 
 declare const sysend: Sysend;
 
