@@ -74,6 +74,55 @@ window.onload = function() {
 };
 ```
 
+### Windows/tabs tracking
+
+Tracking is high level API build on top of `on()` and `broadcast()`, that allows to manage windows/tabs. You can sent message directly to other windows:
+
+```javascript
+sysend.track('message', ({data, origin}) => {
+    console.log(`${origin} send message "${data}"`);
+});
+sysend.post('<ID>', 'Hello other window/tab');
+```
+
+and listen to events like:
+
+```javascript
+sysend.track('open', (data) => {
+    console.log(`${data.id} window/tab just opened`);
+});
+```
+
+Other tracking events includes: close/primary/secondary executed when window/tab is closed or become primary or secondary. Track method was added in version 1.6.0. Another required event is `ready` (added in 1.10.0) that should be used when you want to get list of windows/tabs:
+
+```javascript
+sysend.track('ready', () => {
+    sysend.list().then(tabs => {
+        console.log(tabs);
+    });
+});
+```
+
+with `list()` method and `open`/`close` events you can implement dynamic list of windows/tab. That will change when new window/tab is open or close.
+
+In version 1.15.0 new API was added called `rpc` that allow to implement RPC (Remote Procedure Call) between open windows/tabs.
+
+```javascript
+const rpc = sysend.rpc({
+    get_message() {
+        return document.querySelector('input').value;
+    }
+});
+
+button.addEventListener('click', () => {
+    rpc.get_message('<ID>').then(message => {
+        console.log(`Message from other tab is "${message}"`);
+    }).catch(e => {
+        console.log(`get_message (ERROR) ${e.message}`);
+    });
+});
+```
+
 ### Cross-Domain communication
 
 If you want to add support for Cross-Domain communication, you need to call proxy method with url on target domain
