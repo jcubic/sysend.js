@@ -43,6 +43,7 @@
     // id of the window/tabAnd two-way communication is tracked in
     var target_id = generate_uuid();
     var target_count = 1;
+    var rpc_count = 0;
     var domains;
 
     var handlers = {
@@ -211,7 +212,7 @@
             }
         },
         rpc: function(object) {
-            const prefix = ++rpc_prefix;
+            const prefix = ++rpc_count;
             const req = `__${prefix}_rpc_request__`;
             const res = `__${prefix}_rpc_response__`;
             let request_index = 0;
@@ -260,10 +261,11 @@
                     }
                 }
             });
+            const error_msg = 'You need to specify the target window/tab';
             return Object.fromEntries(Object.keys(object).map(name => {
                 return [name, (id, ...args) => {
                     if (!id) {
-                        throw new Error('You need to specify the target window/tab');
+                        return Promise.reject(new Error(error_msg));
                     }
                     return request(id, name, args);
                 }];
