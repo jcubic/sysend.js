@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.14.3-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.14.3-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.15.0-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.15.0-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -152,11 +152,11 @@ sysend object:
 | `post(<window_id>, [, object])` | send any data to other window | window_id - string of the target window (use `'primary'` to send to primary window)<br>object - any data | 1.6.0 / `'primary'` target 1.14.0 |
 | `list()` | returns a Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send a message with `post()` | NA | 1.6.0 |
 | `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary.<br>* `"ready"` - event when tracking is ready. | 1.6.0 except `ready` - 1.10.0 |
-| `untrack(event [,callback])` | remove sigle event listener all all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
+| `untrack(event [,callback])` | remove single event listener all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 | `channel()` | function restrict cross domain communication to only allowed domains. You need to call this function on proxy iframe to limit number of domains (origins) that can listen and send events.  | any number of origins (e.g. 'http://localhost:8080' or 'https://jcubic.github.io') you can also use valid URL. | 1.10.0 |
 | `useLocalStorage([toggle])` | Function set or toggle localStorage mode. | argument is optional and can be `true` or `false`. | 1.14.0 |
-
+| `rpc(object): Promise<fn(id, ...args): Promise>` | Function accept an object with methods and return a Promise that resolve to object with same methods but async that return a Promise. The result function accept first additional argument that is ID of window/tab that it should sent request. The other window/tab call the function with result. | 1.15.0 |
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 
@@ -164,11 +164,11 @@ To see details of using the API, see [demo.html source code](https://github.com/
 
 The story of this library came from my question on StackOverflow from 2014: [Sending notifications between instances of the page in the same browser](https://stackoverflow.com/q/24182409/387194), with hint from user called **Niet the Dark Absol**, I was able to create a PoC of the solution using localStorage. I quickly created a library from my solution. I've also explained how to have [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/). The blog post have steady number of visitors (actually it's most viewed post on that blog).
 
-And the name of the library is just random word "sy" and "send" suffix. But it can be an backronym for **Synchronizing Send** as in sychronizing application between browser tabs.
+And the name of the library is just random word "sy" and "send" suffix. But it can be an backronym for **Synchronizing Send** as in synchronizing application between browser tabs.
 
 ## License
 
-Copyright (C) 2014-2022 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
+Copyright (C) 2014-2023 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>

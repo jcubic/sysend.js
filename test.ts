@@ -27,3 +27,17 @@ sysend.serializer(function(data) {
 }, function(string) {
     return JSON.parse(string);
 });
+
+
+const rpc = sysend.rpc({
+    hello(str: string) {
+        return parseInt(str, 10);
+    }
+});
+
+rpc.then(service => {
+    service.hello("<ID>", "10").then(n => {
+        const x: number = n + 10;
+        console.log(x);
+    });
+});

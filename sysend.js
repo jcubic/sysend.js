@@ -1,7 +1,7 @@
 /**@license
- *  sysend.js - send messages between browser windows/tabs version 1.14.3
+ *  sysend.js - send messages between browser windows/tabs version 1.15.0
  *
- *  Copyright (C) 2014-2022 Jakub T. Jankiewicz <https://jcubic.pl/me>
+ *  Copyright (C) 2014-2023 Jakub T. Jankiewicz <https://jcubic.pl/me>
  *  Released under the MIT license
  *
  *  The idea for localStorage implementation came from this StackOverflow question:
@@ -88,17 +88,17 @@
             serializer.from = from;
             return sysend;
         },
-        proxy: function() {
-            [].slice.call(arguments).forEach(function(url) {
+        proxy: function(...args) {
+            args.forEach(function(url) {
                 if (typeof url === 'string' && host(url) !== window.location.host) {
                     domains = domains || [];
                     domains.push(origin(url));
-                    var iframe = document.createElement('iframe');
+                    const iframe = document.createElement('iframe');
                     iframe.style.width = iframe.style.height = 0;
                     iframe.style.position = 'absolute';
                     iframe.style.top = iframe.style.left = '-9999px';
                     iframe.style.border = 'none';
-                    var proxy_url = url;
+                    let proxy_url = url;
                     if (!url.match(/\.html$/)) {
                         proxy_url = url.replace(/\/$/, '') + '/proxy.html';
                     }
@@ -110,7 +110,7 @@
                         iframe.removeEventListener('error', handler);
                     });
                     iframe.addEventListener('load', function handler() {
-                        var win;
+                        let win;
                         // fix for Safari
                         // https://stackoverflow.com/q/42632188/387194
                         try {
@@ -177,11 +177,11 @@
             });
         },
         list: function() {
-            var id = list_id++;
-            var marker = { target: target_id, id: id };
-            var timer = delay(sysend.timeout);
+            const id = list_id++;
+            const marker = { target: target_id, id: id };
+            const timer = delay(sysend.timeout);
             return new Promise(function(resolve) {
-                var ids = [];
+                const ids = [];
                 sysend.on('__window_ack__', function(data) {
                     if (data.origin.target === target_id && data.origin.id === id) {
                         ids.push({
@@ -196,8 +196,8 @@
                 });
             });
         },
-        channel: function() {
-            domains = [].slice.apply(arguments).map(origin);
+        channel: function(...args) {
+            domains = args.map(origin);
             return sysend;
         },
         isPrimary: function() {
@@ -210,6 +210,65 @@
                 force_ls = true;
             }
         },
+        rpc: function(object) {
+            const prefix = ++rpc_prefix;
+            const req = `__${prefix}_rpc_request__`;
+            const res = `__${prefix}_rpc_response__`;
+            let request_index = 0;
+            const timeout = 1000;
+            function request(id, method, args = []) {
+                const req_id = ++request_index;
+                return new Promise((resolve, reject) => {
+                    sysend.track('message', function handler({data, origin}) {
+                        if (data.type === res) {
+                            const { result, error, id: res_id } = data;
+                            if (origin === id && req_id === res_id) {
+                                if (error) {
+                                    reject(error);
+                                } else {
+                                    resolve(result);
+                                }
+                                clearTimeout(timer);
+                                sysend.untrack('message', handler);
+                            }
+                        }
+                    });
+                    sysend.post(id, { method, id: req_id, type: req, args });
+                    const timer = setTimeout(() => {
+                        reject(new Error('Timeout error'));
+                    }, timeout);
+                });
+            }
+
+            sysend.track('message', async function handler({ data, origin }) {
+                if (data.type == req) {
+                    const { method, args, id } = data;
+                    const type = res;
+                    if (Object.hasOwn(object, method)) {
+                        try {
+                            unpromise(object[method](...args), function(result) {
+                                sysend.post(origin, { result, id, type });
+                            }, function(error) {
+                                sysend.post(origin, { error: error.message, id, type });
+                            });
+                        } catch(e) {
+                            sysend.post(origin, { error: e.message, id, type });
+                        }
+                    } else {
+                        sysend.post(origin, { error: 'Method not found', id, type });
+
+                    }
+                }
+            });
+            return Object.fromEntries(Object.keys(object).map(name => {
+                return [name, (id, ...args) => {
+                    if (!id) {
+                        throw new Error('You need to specify the target window/tab');
+                    }
+                    return request(id, name, args);
+                }];
+            }));
+        }
     };
     // -------------------------------------------------------------------------
     Object.defineProperty(sysend, 'timeout', {
@@ -243,6 +302,24 @@
             return a.host;
         };
     })();
+    // -------------------------------------------------------------------------
+    function is_promise(obj) {
+        return obj && typeof object == 'object' &&
+            typeof object.then === 'function';
+    }
+    // -------------------------------------------------------------------------
+    function unpromise(obj, callback, error = null) {
+        if (is_promise(obj)) {
+            const ret = obj.then(callback);
+            if (error === null) {
+                return ret;
+            } else {
+                return ret.catch(error);
+            }
+        } else {
+            return callback(obj);
+        }
+    }
     // -------------------------------------------------------------------------
     function delay(time) {
         return function() {
@@ -345,8 +422,7 @@
         });
     }
     // -------------------------------------------------------------------------
-    function trigger(arr) {
-        var args = [].slice.call(arguments, 1);
+    function trigger(arr, ...args) {
         arr.forEach(function(fn) {
             fn.apply(null, args);
         });
