@@ -105,6 +105,55 @@ sysend.track('ready', () => {
 
 with `list()` method and `open`/`close` events you can implement dynamic list of windows/tab. That will change when new window/tab is open or close.
 
+```javascript
+let list = [];
+
+sysend.track('open', data => {
+    if (data.id !== sysend.id) {
+        list.push(data);
+        populate_list(list);
+    }
+});
+
+sysend.track('close', data => {
+    list = list.filter(tab => data.id !== tab.id);
+    populate_list(list);
+});
+
+sysend.track('ready', () => {
+    sysend.list().then(tabs => {
+        list = tabs;
+        populate_list(list);
+    });
+});
+
+function populate_list() {
+    select.innerHTML = '';
+    list.forEach(tab => {
+        const option = document.createElement('option');
+        option.value = tab.id;
+        option.innerText = tab.id;
+        select.appendChild(option);
+    });
+}
+```
+
+In version 1.16.0 this code was abstracted into:
+
+```javascript
+sysend.track('update', (list) => {
+   populate_list(list);
+});
+```
+
+This can be simplified with point free style:
+
+```javascript
+sysend.track('update', populate_list);
+```
+
+### RPC mechanism
+
 In version 1.15.0 new API was added called `rpc()` (build on top of tracking mechanism) that allow to use RPC (Remote Procedure Call) between open windows/tabs.
 
 ```javascript
@@ -135,12 +184,6 @@ sysend.proxy('https://terminal.jcubic.pl');
 
 on Firefox you need to add **CORS** for the proxy.html that will be loaded into iframe (see [Cross-Domain LocalStorage](https://jcubic.wordpress.com/2014/06/20/cross-domain-localstorage/)).
 
-### Security protection
-
-Since version 1.10.0 as a security mesure Cross-Domain communication has been limited to only those domains that are allowed.
-To allow domain to listen to sysend communication you need to specify channel inside iframe. You need add your origins to the
-`sysend.channel()` function (origin is combination of protocol domain and optional port).
-
 ### Serialization
 
 if you want to send custom data you can use serializer (new in 1.4.0) this API
@@ -166,6 +209,13 @@ sysend.serializer(function(data) {
 });
 ````
 
+### Security protection
+
+Since version 1.10.0 as a security mesure Cross-Domain communication has been limited to only those domains that are allowed.
+To allow domain to listen to sysend communication you need to specify channel inside iframe. You need add your origins to the
+`sysend.channel()` function (origin is combination of protocol domain and optional port).
+
+
 ## Demos
 
 * [Simple demo using iframes](https://jcubic.pl/sysend-demo/).
@@ -189,8 +239,8 @@ sysend object:
 | `emit(name, [, object])` | same as `broadcast()` but also invoke the even on same page | name - string - The name of the event<br>object - optional any data | 1.5.0 |
 | `post(<window_id>, [, object])` | send any data to other window | window_id - string of the target window (use `'primary'` to send to primary window)<br>object - any data | 1.6.0 / `'primary'` target 1.14.0 |
 | `list()` | returns a Promise of objects `{id:<UUID>, primary}` for other windows, you can use those to send a message with `post()` | NA | 1.6.0 |
-| `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary.<br>* `"ready"` - event when tracking is ready. | 1.6.0 except `ready` - 1.10.0 |
-| `untrack(event [,callback])` | remove single event listener all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, or `'message'`. | 1.6.0 |
+| `track(event, callback)` | track inter window communication events  | event - any of the strings: `"open"`, `"close"`, `"primary"`, <br>`"secondary"`, `"message"`, `"update"`<br>callback - different function depend on the event:<br>* `"message"` - `{data, origin}` - where data is anything the `post()` sends, and origin is `id` of the sender.<br>* `"open"` - `{count, primary, id}` when new window/tab is opened<br>* `"close"` - `{count, primary, id, self}` when window/tab is closed<br>* `"primary"` and `"secondary"` function has no arguments and is called when window/tab become secondary or primary.<br>* `"ready"` - event when tracking is ready. | 1.6.0 except `ready` - 1.10.0 and `update` - 1.16.0 |
+| `untrack(event [,callback])` | remove single event listener all listeners for a given event | event - any of the strings `'open'`, `'close'`, `'primary'`, `'secondary'`, `'message'`, or `'update'`. | 1.6.0 |
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 | `channel()` | function restrict cross domain communication to only allowed domains. You need to call this function on proxy iframe to limit number of domains (origins) that can listen and send events.  | any number of origins (e.g. 'http://localhost:8080' or 'https://jcubic.github.io') you can also use valid URL. | 1.10.0 |
 | `useLocalStorage([toggle])` | Function set or toggle localStorage mode. | argument is optional and can be `true` or `false`. | 1.14.0 |

@@ -33,17 +33,15 @@
                  message('just got empty notification');
              }
          });
-         function list() {
-             sysend.list().then(list => {
-                 target.innerHTML = '';
-                 list.forEach(function({ id: uuid }) {
-                     var option = document.createElement('option');
-                     option.innerHTML = uuid;
-                     option.value = uuid;
-                     target.appendChild(option);
-                 });
-             });
-         }
+         sysend.track('update', list => {
+           target.innerHTML = '';
+           list.forEach(function({ id: uuid }) {
+             var option = document.createElement('option');
+             option.innerHTML = uuid;
+             option.value = uuid;
+             target.appendChild(option);
+           });
+         });
          var a = document.getElementById('a');
          var b = document.getElementById('b');
          var c = document.getElementById('c');
@@ -78,7 +76,6 @@
                  track('send: Welcome');
                  sysend.post(data.id, 'Welcome');
              }
-             list();
          });
          sysend.track('message', function(data) {
              track('message: ' + data.data + ' from ' + data.origin);
@@ -100,7 +97,6 @@
              } else {
                  track('close: ' + id(data.id));
              }
-             list();
          });
          sysend.track('primary', function() {
              track('track: become primary');

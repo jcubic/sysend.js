@@ -53,7 +53,8 @@
         secondary: [],
         message: [],
         visbility: [],
-        ready: []
+        ready: [],
+        update: []
     };
     var events = Object.keys(handlers);
     // -------------------------------------------------------------------------
@@ -586,6 +587,9 @@
             setTimeout(init, 0);
         });
     }
+    // -------------------------------------------------------------------------
+    setup_update_tracking();
+    // -------------------------------------------------------------------------
     function setup_ls() {
         // we need to clean up localStorage if broadcast called on unload
         // because setTimeout will never fire, even setTimeout 0
@@ -611,6 +615,33 @@
                 }
             }
         }, false);
+    }
+    // -------------------------------------------------------------------------
+    function setup_update_tracking() {
+        let list = [];
+
+        function update() {
+            trigger(handlers.update, list);
+        }
+
+        sysend.track('open', data => {
+            if (data.id !== sysend.id) {
+                list.push(data);
+                update();
+            }
+        }, true);
+
+        sysend.track('close', data => {
+            list = list.filter(tab => data.id !== tab.id);
+            update();
+        }, true);
+
+        sysend.track('ready', () => {
+            sysend.list().then(tabs => {
+                list = tabs;
+                update();
+            });
+        }, true);
     }
     // -------------------------------------------------------------------------
     function init() {
