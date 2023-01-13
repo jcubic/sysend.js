@@ -21,7 +21,7 @@
     var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
-    var prefix_re = new RegExp(uniq_prefix);
+    var prefix_re = new RegExp('^' + uniq_prefix);
     var random_value = Math.random();
     var serializer = {};
     // object with user events as keys and values arrays of callback functions
@@ -138,7 +138,7 @@
             callbacks[event].push(fn);
             return sysend;
         },
-        off: function(event, fn) {
+        off: function(event, fn, internal = false) {
             if (callbacks[event]) {
                 if (fn) {
                     for (var i = callbacks[event].length; i--;) {
@@ -146,22 +146,31 @@
                             callbacks[event].splice(i, 1);
                         }
                     }
-                } else {
+                } else if (internal && is_internal(event) || !internal) {
                     callbacks[event] = [];
                 }
             }
             return sysend;
         },
-        track: function(event, fn) {
+        track: function(event, fn, internal = false) {
+            if (internal) {
+                fn[Symbol.for(uniq_prefix)] = true;
+            }
             if (events.includes(event)) {
                 handlers[event].push(fn);
             }
             return sysend;
         },
-        untrack: function(event, fn) {
+        untrack: function(event, fn, internal = false) {
             if (events.includes(event) && handlers[event].length) {
                 if (fn === undefined) {
-                    handlers[event] = [];
+                    if (internal) {
+                        handlers[event] = [];
+                    } else {
+                        handlers[event] = handlers[event].filter(fn => {
+                            return !fn[Symbol.for(uniq_prefix)];
+                        });
+                    }
                 } else {
                     handlers[event] = handlers[event].filter(function(handler) {
                         return handler !== fn;
@@ -171,7 +180,7 @@
             return sysend;
         },
         post: function(target, data) {
-            return sysend.broadcast('__message__', {
+            return sysend.broadcast(make_internal('__message__'), {
                 target: target,
                 data: data,
                 origin: target_id
@@ -183,7 +192,7 @@
             const timer = delay(sysend.timeout);
             return new Promise(function(resolve) {
                 const ids = [];
-                sysend.on('__window_ack__', function(data) {
+                sysend.on(make_internal('__window_ack__'), function(data) {
                     if (data.origin.target === target_id && data.origin.id === id) {
                         ids.push({
                             id: data.id,
@@ -191,7 +200,7 @@
                         });
                     }
                 });
-                sysend.broadcast('__window__', { id: marker });
+                sysend.broadcast(make_internal('__window__'), { id: marker });
                 timer().then(function() {
                     resolve(ids);
                 });
@@ -233,7 +242,7 @@
                                 sysend.untrack('message', handler);
                             }
                         }
-                    });
+                    }, true);
                     sysend.post(id, { method, id: req_id, type: req, args });
                     const timer = setTimeout(() => {
                         reject(new Error('Timeout error'));
@@ -260,7 +269,7 @@
 
                     }
                 }
-            });
+            }, true);
             const error_msg = 'You need to specify the target window/tab';
             return Object.fromEntries(Object.keys(object).map(name => {
                 return [name, (id, ...args) => {
@@ -383,10 +392,18 @@
         // properly. The number was picked by experimentation
     }
     // -------------------------------------------------------------------------
+    function make_internal(name) {
+        return uniq_prefix + name;
+    }
+    // -------------------------------------------------------------------------
+    function is_internal(name) {
+        return name.match(prefix_re);
+    }
+    // -------------------------------------------------------------------------
     // :: valid sysend message
     // -------------------------------------------------------------------------
     function is_sysend_post_message(e) {
-        return typeof e.data === 'string' && e.data.match(prefix_re);
+        return typeof e.data === 'string' && is_internal(e.data);
     }
     // -------------------------------------------------------------------------
     function is_valid_origin(origin) {
@@ -431,13 +448,13 @@
     }
     // -------------------------------------------------------------------------
     function get(key) {
-        return localStorage.getItem(uniq_prefix + key);
+        return localStorage.getItem(make_internal(key));
     }
     // -------------------------------------------------------------------------
     function set(key, value) {
         // storage event is not fired when value is set first time
         if (id == 0) {
-            localStorage.setItem(uniq_prefix + key, random_value);
+            localStorage.setItem(make_internal(key), random_value);
         }
         localStorage.setItem(uniq_prefix + key, value);
     }
@@ -555,7 +572,7 @@
     function become_primary() {
         primary = true;
         trigger(handlers.primary);
-        sysend.emit('__primary__');
+        sysend.emit(make_internal('__primary__'));
     }
     // -------------------------------------------------------------------------
     function document_ready() {
@@ -649,17 +666,17 @@
                 if (visible && !has_primary) {
                     become_primary();
                 }
-            });
+            }, true);
 
-            sysend.on('__primary__', function() {
+            sysend.on(make_internal('__primary__'), function() {
                 has_primary = true;
             });
 
-            sysend.on('__open__', function(data) {
+            sysend.on(make_internal('__open__'), function(data) {
                 var id = data.id;
                 target_count++;
                 if (primary) {
-                    sysend.broadcast('__ack__');
+                    sysend.broadcast(make_internal('__ack__'));
                 }
                 trigger(handlers.open, {
                     count: target_count,
@@ -671,13 +688,13 @@
                 }
             });
 
-            sysend.on('__ack__', function() {
+            sysend.on(make_internal('__ack__'), function() {
                 if (!primary) {
                     trigger(handlers.secondary);
                 }
             });
 
-            sysend.on('__close__', function(data) {
+            sysend.on(make_internal('__close__'), function(data) {
                 --target_count;
                 var last = target_count === 1;
                 if (data.wasPrimary && !primary) {
@@ -697,15 +714,15 @@
                 trigger(handlers.close, payload);
             });
 
-            sysend.on('__window__', function(data) {
-                sysend.broadcast('__window_ack__', {
+            sysend.on(make_internal('__window__'), function(data) {
+                sysend.broadcast(make_internal('__window_ack__'), {
                     id: target_id,
                     origin: data.id,
                     primary: primary
                 });
             });
 
-            sysend.on('__message__', function(data) {
+            sysend.on(make_internal('__message__'), function(data) {
                 if (data.target === 'primary' && primary) {
                     trigger(handlers.message, data);
                 } else if (data.target === target_id) {
@@ -714,7 +731,7 @@
             });
 
             addEventListener('beforeunload', function() {
-                sysend.emit('__close__', { id: target_id, wasPrimary: primary });
+                sysend.emit(make_internal('__close__'), { id: target_id, wasPrimary: primary });
             }, { capture: true });
 
             iframe_loaded().then(function() {
@@ -727,7 +744,7 @@
                     if (found || primary) {
                         has_primary = true;
                     }
-                    sysend.emit('__open__', {
+                    sysend.emit(make_internal('__open__'), {
                         id: target_id,
                         primary: primary
                     });
