@@ -21,7 +21,7 @@
     var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
-    var prefix_re = new RegExp('^' + uniq_prefix);
+    var prefix_re = new RegExp(uniq_prefix);
     var random_value = Math.random();
     var serializer = {};
     // object with user events as keys and values arrays of callback functions
@@ -101,7 +101,7 @@
                     iframe.style.top = iframe.style.left = '-9999px';
                     iframe.style.border = 'none';
                     let proxy_url = url;
-                    if (!url.match(/\.html$/)) {
+                    if (!url.match(/\.html|\.php|\?/)) {
                         proxy_url = url.replace(/\/$/, '') + '/proxy.html';
                     }
                     iframe.addEventListener('error', function handler() {
