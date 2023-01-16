@@ -1,7 +1,7 @@
 {
   "name": "sysend",
-  "version": "1.16.0",
-  "description": "Web application synchronization between different tabs",
+  "version": "1.16.1",
+  "description": "Communication and Synchronization between browser tabs/windows. Works cross-domain.",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
   "scripts": {
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "tabs",
+    "rpc",
     "windows",
     "messages",
     "cross-domain",
