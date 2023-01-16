@@ -264,6 +264,7 @@ The library was featured in:
 * [JavaScript Weekly](https://javascriptweekly.com/issues/581)
 * [Impressive Webs](https://www.impressivewebs.com/most-interesting-front-end-developer-tools-2021/)
 * [Front-end Architecture](https://frontend-architecture.com/2022/03/30/messaging-between-browser-tabs/)
+* [Frontend Planet](https://www.frontendplanet.com/news-for-front-end-developers-13/)
 
 ## License
 
