@@ -17,7 +17,7 @@
     } else {
         root.sysend = factory();
     }
-})(typeof window !== "undefined" ? window : this, function() {
+})(typeof window !== 'undefined' ? window : this, function() {
     var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
@@ -516,7 +516,7 @@
               data: data
             };
             if (is_valid_origin(origin(iframe.node.src))) {
-                iframe.window.postMessage(JSON.stringify(payload), "*");
+                iframe.window.postMessage(JSON.stringify(payload), '*');
             }
         });
     }
@@ -553,15 +553,15 @@
     function init_visiblity() {
         // ref: https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
         var hidden, visibilityChange;
-        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
-            hidden = "hidden";
-            visibilityChange = "visibilitychange";
-        } else if (typeof document.msHidden !== "undefined") {
-            hidden = "msHidden";
-            visibilityChange = "msvisibilitychange";
-        } else if (typeof document.webkitHidden !== "undefined") {
-            hidden = "webkitHidden";
-            visibilityChange = "webkitvisibilitychange";
+        if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support
+            hidden = 'hidden';
+            visibilityChange = 'visibilitychange';
+        } else if (typeof document.msHidden !== 'undefined') {
+            hidden = 'msHidden';
+            visibilityChange = 'msvisibilitychange';
+        } else if (typeof document.webkitHidden !== 'undefined') {
+            hidden = 'webkitHidden';
+            visibilityChange = 'webkitvisibilitychange';
         }
         if (typeof document.addEventListener === 'function' && hidden) {
             document.addEventListener(visibilityChange, function() {
@@ -656,7 +656,7 @@
                           iframe_id: target_id
                         };
                         if (is_valid_origin(origin(document.referrer))) {
-                            window.parent.postMessage(JSON.stringify(payload), "*");
+                            window.parent.postMessage(JSON.stringify(payload), '*');
                         }
                     } else {
                         var key = event.data && event.data.name;
