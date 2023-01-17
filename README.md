@@ -247,7 +247,7 @@ sysend object:
 | `isPrimary()` | function returns true if window is primary (first open or last that remain) | NA  | 1.6.0 |
 | `channel()` | function restrict cross domain communication to only allowed domains. You need to call this function on proxy iframe to limit number of domains (origins) that can listen and send events.  | any number of origins (e.g. 'http://localhost:8080' or 'https://jcubic.github.io') you can also use valid URL. | 1.10.0 |
 | `useLocalStorage([toggle])` | Function set or toggle localStorage mode. | argument is optional and can be `true` or `false`. | 1.14.0 |
-| `rpc(object): Promise<fn(id, ...args): Promise>` | Function accept an object with methods and return a Promise that resolve to object with same methods but async. The result function accept first additional argument that is ID of window/tab that it should sent request to. The other window/tab call the function and return value resolve original promise. | 1.15.0 |
+| `rpc(object): Promise<fn(id, ...args): Promise>` | Function create RPC async functions which accept first additional argument that is ID of window/tab that it should sent request to. The other window/tab call the function and return value resolve original promise. | The function accept an object with methods and return a Promise that resolve to object with same methods but async. | 1.15.0 |
 
 To see details of using the API, see [demo.html source code](https://github.com/jcubic/sysend.js/blob/master/demo.html) or [TypeScript definition file](https://github.com/jcubic/sysend.js/blob/master/sysend.d.ts).
 
