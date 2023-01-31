@@ -222,7 +222,7 @@ To allow domain to listen to sysend communication you need to specify channel in
 * [All feature demo](http://jcubic.pl/sysend.php) (this one require open in two tabs/windows, there is also link to other domain).
 * [ReactJS shopping cart synchronization](https://codepen.io/jcubic/pen/QWgmBmE).
 * [multiple window tracking demo](https://jcubic.pl/windows.html). Open the link in multiple windows (not tabs). First window will track position and size for all windows.
-* [Multiple windows with interactive Canvas demo](https://codepen.io/jcubic/pen/ZEjXBVg), this demo draws circle on the Canvas that follow the mouse. Open the window in multiple windows (not tabs). The best effect is when the circle is between two windows.
+* [Multiple windows with interactive Canvas demo](https://codepen.io/jcubic/pen/ZEjXBVg), this demo draws circle on the Canvas that follow the mouse. Open the page in multiple windows (not tabs). The best effect is when the circle is between two windows.
 
 ![Screen capture of Operating System Windows dragging and moving around animation](https://github.com/jcubic/sysend.js/blob/master/assets/windows-demo.gif?raw=true)
 
