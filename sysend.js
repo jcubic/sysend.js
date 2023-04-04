@@ -601,7 +601,7 @@
         }
         window.addEventListener('storage', function(e) {
             // prevent event to be executed on remove in IE
-            if (e.key.match(re) && index++ % 2 === 0) {
+            if (e.key && e.key.match(re) && index++ % 2 === 0) {
                 var key = e.key.replace(re, '');
                 if (callbacks[key]) {
                     var value = e.newValue || get(key);
