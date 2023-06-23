@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.16.2-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.16.2-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.16.3-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.16.3-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
