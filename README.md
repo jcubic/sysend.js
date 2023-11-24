@@ -31,6 +31,15 @@ block 3rd party tracking for iframe, and any iframe used for cross-domain commun
 sandboxed environment.  That's why this library like any other solution for cross-domain
 communication, don't work on Safari.
 
+## Note about Chrome 115+ and different domains
+
+Since version 115 Google Chrome introduced Third-party storage partitioning. Because of this feature,
+Cross-domain communication only works on subdomains. There will probably be a way to share the context
+using some kind of permission API, that in the future may also land in Safari (hopefully). More information
+about this can be found in [#54](https://github.com/jcubic/sysend.js/issues/54).
+Information about the API can also be found on Google Chrome documentation:
+[Storage Partitioning](https://developer.chrome.com/docs/privacy-sandbox/storage-partitioning/)
+
 ## Installation
 
 Include `sysend.js` file in your html, you can grab the file from npm:
