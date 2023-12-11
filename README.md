@@ -44,7 +44,7 @@ There is a new API: Storage Access API. It's available when you
 [register](https://developer.chrome.com/origintrials/#/trials/active) for the
 [Origin Trial](https://developer.chrome.com/origintrials/#/view_trial/577023702256844801).
 
-You can register two and more domains, you will have a token that you need to add to the proxy html file:
+You can register two and more domains, you will have a token that you need to add to the proxy html file (in the head tag):
 
 ```html
 <meta http-equiv="origin-trial" content="<TOKEN>" />
