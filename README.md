@@ -20,15 +20,15 @@ You can also send empty notifications.
 
 Tested on:
 
-GNU/Linux: in Chromium 34, FireFox 29, Opera 12.16 (64bit)<br/>
+GNU/Linux: in Chromium 34, Firefox 29, Opera 12.16 (64bit)<br/>
 Windows 10 64bit: in IE11 and Edge 38, Chrome 56, Firefox 51<br/>
 MacOS X El Captain: Safari 9, Chrome 56, Firefox 51
 
 ## Note about Safari 7+ and Cross-Domain communication
 
 All cross-domain communication is disabled by default with Safari 7+.  Because of a feature that
-block 3rd party tracking for iframe, and any iframe used for cross-domain communication runs in
-sandboxed environment.  That's why this library like any other solution for cross-domain
+blocks 3rd party tracking for iframe, and any iframe used for cross-domain communication runs in
+a sandboxed environment.  That's why this library like any other solution for cross-domain
 communication, don't work on Safari.
 
 ## Note about Chrome 115+ and different domains
@@ -37,8 +37,25 @@ Since version 115 Google Chrome introduced Third-party storage partitioning. Bec
 Cross-domain communication only works on subdomains. There will probably be a way to share the context
 using some kind of permission API, that in the future may also land in Safari (hopefully). More information
 about this can be found in [#54](https://github.com/jcubic/sysend.js/issues/54).
-Information about the API can also be found on Google Chrome documentation:
+Information about the API can also be found in Google Chrome documentation:
 [Storage Partitioning](https://developer.chrome.com/docs/privacy-sandbox/storage-partitioning/)
+
+There is a new API: Storage Access API. It's available when you
+[register](https://developer.chrome.com/origintrials/#/trials/active) for the
+[Origin Trial](https://developer.chrome.com/origintrials/#/view_trial/577023702256844801).
+
+You can register two and more domains, you will have a token that you need to add to the proxy html file:
+
+```html
+<meta http-equiv="origin-trial" content="<TOKEN>" />
+```
+
+You can also use the HTTP header:
+
+```
+Origin-Trial: <TOKEN>
+```
+
 
 ## Installation
 
