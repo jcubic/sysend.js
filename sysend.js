@@ -39,6 +39,8 @@
     var id = 0;
     // identifier for making each call to list unique
     var list_id = 0;
+    // Storage Access API handler
+    var sa_handle;
 
     // id of the window/tabAnd two-way communication is tracked in
     var target_id = generate_uuid();
@@ -448,20 +450,28 @@
         });
     }
     // -------------------------------------------------------------------------
+    function ls() {
+        if (sa_handle) {
+            return sa_handle.localStorage;
+        } else {
+            return localStorage;
+        }
+    }
+    // -------------------------------------------------------------------------
     function get(key) {
-        return localStorage.getItem(make_internal(key));
+        return ls().getItem(make_internal(key));
     }
     // -------------------------------------------------------------------------
     function set(key, value) {
         // storage event is not fired when value is set first time
         if (id == 0) {
-            localStorage.setItem(make_internal(key), random_value);
+            ls().setItem(make_internal(key), random_value);
         }
-        localStorage.setItem(uniq_prefix + key, value);
+        ls().setItem(uniq_prefix + key, value);
     }
     // -------------------------------------------------------------------------
     function remove(key) {
-        localStorage.removeItem(uniq_prefix + key);
+        ls().removeItem(uniq_prefix + key);
     }
     // -------------------------------------------------------------------------
     function make_process(object, prop) {
@@ -495,8 +505,8 @@
     // -------------------------------------------------------------------------
     var is_private_mode = (function is_private_mode() {
         try {
-            localStorage.setItem(uniq_prefix, 1);
-            localStorage.removeItem(uniq_prefix);
+            ls().setItem(uniq_prefix, 1);
+            ls().removeItem(uniq_prefix);
             return false;
         } catch (e) {
             return true;
@@ -594,6 +604,7 @@
         // we need to clean up localStorage if broadcast called on unload
         // because setTimeout will never fire, even setTimeout 0
         var re = new RegExp('^' + uniq_prefix);
+        var localStorage = ls();
         for(var key in localStorage) {
             if (key.match(re)) {
                 localStorage.removeItem(key);
@@ -644,28 +655,50 @@
         }, true);
     }
     // -------------------------------------------------------------------------
-    function init() {
-        if (typeof window.BroadcastChannel === 'function') {
+    function init_channel() {
+        if (sa_handle) {
+            if (sa_handle.hasOwnProperty('BroadcastChannel')) {
+                channel = new sa_handle.BroadcastChannel(uniq_prefix);
+            }
+        } else {
             channel = new window.BroadcastChannel(uniq_prefix);
-            channel.addEventListener('message', function(event) {
-                if (event.target.name === uniq_prefix) {
-                    if (is_proxy_iframe()) {
-                        var payload = {
-                          name: uniq_prefix,
-                          data: event.data,
-                          iframe_id: target_id
-                        };
-                        if (is_valid_origin(origin(document.referrer))) {
-                            window.parent.postMessage(JSON.stringify(payload), '*');
-                        }
-                    } else {
-                        var key = event.data && event.data.name;
-                        if (callbacks[key]) {
-                            invoke(key, unserialize(event.data.data));
-                        }
+        }
+        if (!channel) {
+            return;
+        }
+        channel.addEventListener('message', function(event) {
+            if (event.target.name === uniq_prefix) {
+                if (is_proxy_iframe()) {
+                    var payload = {
+                        name: uniq_prefix,
+                        data: event.data,
+                        iframe_id: target_id
+                    };
+                    if (is_valid_origin(origin(document.referrer))) {
+                        window.parent.postMessage(JSON.stringify(payload), '*');
+                    }
+                } else {
+                    var key = event.data && event.data.name;
+                    if (callbacks[key]) {
+                        invoke(key, unserialize(event.data.data));
                     }
                 }
-            });
+            }
+        });
+    }
+    // -------------------------------------------------------------------------
+    function init() {
+        if (typeof window.BroadcastChannel === 'function') {
+            if (is_proxy_iframe() && document.requestStorageAccess) {
+                document.requestStorageAccess({
+                    all: true
+                }).then(function(handle) {
+                    sa_handle = handle;
+                    init_channel();
+                });
+            } else {
+                init_channel();
+            }
         } else if (is_private_mode) {
             warn('Your browser don\'t support localStorgage. ' +
                  'In Safari this is most of the time because ' +
@@ -678,6 +711,7 @@
         if (is_proxy_iframe()) {
             window.addEventListener('message', function(e) {
                 if (is_sysend_post_message(e) && is_valid_origin(e.origin)) {
+
                     try {
                         var payload = JSON.parse(e.data);
                         if (payload && payload.name === uniq_prefix) {
