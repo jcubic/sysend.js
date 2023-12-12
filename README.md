@@ -44,7 +44,7 @@ There is a new API: Storage Access API. It's available when you
 [register](https://developer.chrome.com/origintrials/#/trials/active) for the
 [Origin Trial](https://developer.chrome.com/origintrials/#/view_trial/577023702256844801).
 
-You can register two and more domains, you will have a token that you need to add to the proxy html file (in the head tag):
+You can register two and more domains, you will have a token that you need to add to the HTML files (in the head tag):
 
 ```html
 <meta http-equiv="origin-trial" content="<TOKEN>" />
@@ -56,7 +56,7 @@ You can also use the HTTP header:
 Origin-Trial: <TOKEN>
 ```
 
-Right now the API only works with localStorage fallback.
+Right now the API only works with localStorage fallback (when inside iframes).
 
 ## Installation
 
