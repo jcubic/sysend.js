@@ -198,7 +198,7 @@
             var timer = delay(sysend.timeout);
             return new Promise(function(resolve) {
                 var ids = [];
-                sysend.on(make_internal('__window_ack__'), function(data) {
+                function handler(data) {
                     log('__window_ack__', { data, marker });
                     if (data.origin.target === target_id && data.origin.id === id) {
                         ids.push({
@@ -206,10 +206,12 @@
                             primary: data.primary
                         });
                     }
-                });
+                }
+                sysend.on(make_internal('__window_ack__'), handler);
                 sysend.broadcast(make_internal('__window__'), { id: marker });
                 timer().then(function() {
                     log('timeout', { ids });
+                    sysend.off(make_internal('__window_ack__'), handler);
                     resolve(ids);
                 });
             });
