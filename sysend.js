@@ -614,8 +614,6 @@
         });
     }
     // -------------------------------------------------------------------------
-    setup_update_tracking();
-    // -------------------------------------------------------------------------
     function setup_ls() {
         log('setup_ls()');
         // we need to clean up localStorage if broadcast called on unload
@@ -645,8 +643,10 @@
         }, false);
     }
     // -------------------------------------------------------------------------
-    function setup_update_tracking() {
-        var list = [];
+    function setup_update_tracking(init_list) {
+        var list = init_list || [];
+
+        update();
 
         function update() {
             trigger(handlers.update, list);
@@ -668,15 +668,7 @@
             update();
         }, true);
 
-        sysend.track('ready', () => {
-            setTimeout(function() {
-                sysend.list().then(tabs => {
-                    list = tabs;
-                    log({ list, action: 'ready' });
-                    update();
-                });
-            }, 0);
-        }, true);
+
     }
     // -------------------------------------------------------------------------
     function setup_channel() {
@@ -822,24 +814,27 @@
             }, { capture: true });
 
             iframe_loaded().then(function() {
-                sysend.list().then(function(list) {
-                    log('sysend.list()', list);
-                    target_count = list.length;
-                    primary = list.length === 0;
-                    var found = list.find(function(item) {
-                        return item.primary;
+                setTimeout(function() {
+                    sysend.list().then(function(list) {
+                        log('sysend.list()', list);
+                        target_count = list.length;
+                        primary = list.length === 0;
+                        var found = list.find(function(item) {
+                            return item.primary;
+                        });
+                        if (found || primary) {
+                            has_primary = true;
+                        }
+                        sysend.emit(make_internal('__open__'), {
+                            id: target_id,
+                            primary: primary
+                        });
+                        if (primary) {
+                            trigger(handlers.primary);
+                        }
+                        setup_update_tracking(list);
                     });
-                    if (found || primary) {
-                        has_primary = true;
-                    }
-                    sysend.emit(make_internal('__open__'), {
-                        id: target_id,
-                        primary: primary
-                    });
-                    if (primary) {
-                        trigger(handlers.primary);
-                    }
-                });
+                }, 0);
             });
         }
     }
