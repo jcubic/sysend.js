@@ -22,7 +22,7 @@
     var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
-    var prefix_re = new RegExp(uniq_prefix);
+    var prefix_re = new RegExp(uniq_prefix, 'g');
     var random_value = Math.random();
     var serializer = {};
     // object with user events as keys and values arrays of callback functions
@@ -482,12 +482,12 @@
         if (id == 0) {
             ls().setItem(make_internal(key), random_value);
         }
-        ls().setItem(uniq_prefix + key, value);
+        ls().setItem(make_internal(key), value);
     }
     // -------------------------------------------------------------------------
     function remove(key) {
         log({remove: key});
-        ls().removeItem(uniq_prefix + key);
+        ls().removeItem(make_internal(key));
     }
     // -------------------------------------------------------------------------
     function make_process(object, prop) {
@@ -629,8 +629,12 @@
             // prevent event to be executed on remove in IE
             if (e.key && e.key.match(re) && index++ % 2 === 0) {
                 var key = e.key.replace(re, '');
+                log('__key__', e.key + ' ==> ' + key, {
+                    callbacks: callbacks[key],
+                    again: callbacks[key.replace(re, '')]
+                });
                 if (callbacks[key]) {
-                    var value = e.newValue || get(key);
+                    var value = e.newValue || get(e.key);
                     if (value && value != random_value) {
                         var obj = from_json(value);
                         // don't call on remove
