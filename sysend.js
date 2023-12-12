@@ -18,6 +18,7 @@
         root.sysend = factory();
     }
 })(typeof window !== 'undefined' ? window : this, function() {
+    var DEBUG = false;
     var collecting_timeout = 400;
     // we use prefix so `foo' event don't collide with `foo' locaStorage value
     var uniq_prefix = '___sysend___';
@@ -67,6 +68,7 @@
         id: target_id,
         broadcast: function(event, data) {
             if (channel && !force_ls) {
+                log('broadcast', { event, data });
                 channel.postMessage({name: event, data: serialize(data)});
             } else {
                 set(event, to_json(data));
@@ -79,6 +81,7 @@
             return sysend;
         },
         emit: function(event, data) {
+            log('emit', { event, data });
             sysend.broadcast(event, data);
             invoke(event, data);
             return sysend;
@@ -196,6 +199,7 @@
             return new Promise(function(resolve) {
                 const ids = [];
                 sysend.on(make_internal('__window_ack__'), function(data) {
+                    log('__window_ack__', { data, marker });
                     if (data.origin.target === target_id && data.origin.id === id) {
                         ids.push({
                             id: data.id,
@@ -205,6 +209,7 @@
                 });
                 sysend.broadcast(make_internal('__window__'), { id: marker });
                 timer().then(function() {
+                    log('timeout', { ids });
                     resolve(ids);
                 });
             });
@@ -381,6 +386,12 @@
         }
     }
     // -------------------------------------------------------------------------
+    function log() {
+        if (DEBUG) {
+            console.log.apply(null, [self.origin].concat(Array.from(arguments)));
+        }
+    }
+    // -------------------------------------------------------------------------
     function iframe_loaded() {
         var iframes = Array.from(document.querySelectorAll('iframe'));
         return Promise.all(iframes.filter(function(iframe) {
@@ -459,11 +470,13 @@
     }
     // -------------------------------------------------------------------------
     function get(key) {
+        log({get: key});
         return ls().getItem(make_internal(key));
     }
     // -------------------------------------------------------------------------
     function set(key, value) {
         // storage event is not fired when value is set first time
+        log({set: key, value});
         if (id == 0) {
             ls().setItem(make_internal(key), random_value);
         }
@@ -471,6 +484,7 @@
     }
     // -------------------------------------------------------------------------
     function remove(key) {
+        log({remove: key});
         ls().removeItem(uniq_prefix + key);
     }
     // -------------------------------------------------------------------------
@@ -601,6 +615,7 @@
     setup_update_tracking();
     // -------------------------------------------------------------------------
     function setup_ls() {
+        log('setup_ls()');
         // we need to clean up localStorage if broadcast called on unload
         // because setTimeout will never fire, even setTimeout 0
         var re = new RegExp('^' + uniq_prefix);
@@ -638,14 +653,14 @@
         sysend.track('open', data => {
             if (data.id !== sysend.id) {
                 list.push(data);
-                console.log(self.origin, { list, action: 'open' });
+                log({ list, action: 'open' });
                 update();
             }
         }, true);
 
         sysend.track('close', data => {
             list = list.filter(tab => data.id !== tab.id);
-            console.log(self.origin, { list, action: 'close' });
+            log({ list, action: 'close' });
             update();
         }, true);
 
@@ -653,7 +668,7 @@
             setTimeout(function() {
                 sysend.list().then(tabs => {
                     list = tabs;
-                    console.log(self.origin, { list, action: 'ready' });
+                    log({ list, action: 'ready' });
                     update();
                 });
             }, 0);
@@ -673,6 +688,7 @@
         }
         channel.addEventListener('message', function(event) {
             if (event.target.name === uniq_prefix) {
+                log('message', { data: event.data, iframe: is_proxy_iframe() });
                 if (is_proxy_iframe()) {
                     var payload = {
                         name: uniq_prefix,
@@ -705,6 +721,7 @@
 
                     try {
                         var payload = JSON.parse(e.data);
+                        log('iframe', payload, payload.name === uniq_prefix);
                         if (payload && payload.name === uniq_prefix) {
                             var data = unserialize(payload.data);
                             sysend.broadcast(payload.key, data);
@@ -725,10 +742,12 @@
             }, true);
 
             sysend.on(make_internal('__primary__'), function() {
+                log('__primary__');
                 has_primary = true;
             });
 
             sysend.on(make_internal('__open__'), function(data) {
+                log('__open__', data);
                 var id = data.id;
                 target_count++;
                 if (primary) {
@@ -751,6 +770,7 @@
             });
 
             sysend.on(make_internal('__close__'), function(data) {
+                log('__close__', data);
                 --target_count;
                 var last = target_count === 1;
                 if (data.wasPrimary && !primary) {
@@ -771,14 +791,17 @@
             });
 
             sysend.on(make_internal('__window__'), function(data) {
+                log('__window__', { data })
                 sysend.broadcast(make_internal('__window_ack__'), {
                     id: target_id,
                     origin: data.id,
+                    from: self.origin,
                     primary: primary
                 });
             });
 
             sysend.on(make_internal('__message__'), function(data) {
+                log('__message__', data);
                 if (data.target === 'primary' && primary) {
                     trigger(handlers.message, data);
                 } else if (data.target === target_id) {
@@ -787,11 +810,16 @@
             });
 
             addEventListener('beforeunload', function() {
-                sysend.emit(make_internal('__close__'), { id: target_id, wasPrimary: primary });
+                log('beforeunload');
+                sysend.emit(make_internal('__close__'), {
+                    id: target_id,
+                    wasPrimary: primary
+                });
             }, { capture: true });
 
             iframe_loaded().then(function() {
                 sysend.list().then(function(list) {
+                    log('sysend.list()', list);
                     target_count = list.length;
                     primary = list.length === 0;
                     var found = list.find(function(item) {
