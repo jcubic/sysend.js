@@ -638,24 +638,29 @@
         sysend.track('open', data => {
             if (data.id !== sysend.id) {
                 list.push(data);
+                console.log(self.origin, { list, action: 'open' });
                 update();
             }
         }, true);
 
         sysend.track('close', data => {
             list = list.filter(tab => data.id !== tab.id);
+            console.log(self.origin, { list, action: 'close' });
             update();
         }, true);
 
         sysend.track('ready', () => {
-            sysend.list().then(tabs => {
-                list = tabs;
-                update();
-            });
+            setTimeout(function() {
+                sysend.list().then(tabs => {
+                    list = tabs;
+                    console.log(self.origin, { list, action: 'ready' });
+                    update();
+                });
+            }, 0);
         }, true);
     }
     // -------------------------------------------------------------------------
-    function init_channel() {
+    function setup_channel() {
         if (sa_handle) {
             if (sa_handle.hasOwnProperty('BroadcastChannel')) {
                 channel = new sa_handle.BroadcastChannel(uniq_prefix);
@@ -687,23 +692,9 @@
         });
     }
     // -------------------------------------------------------------------------
-    function init() {
-        if (typeof window.BroadcastChannel === 'function') {
-            if (is_proxy_iframe() && document.requestStorageAccess) {
-                document.requestStorageAccess({
-                    all: true
-                }).then(function(handle) {
-                    sa_handle = handle;
-                    init_channel();
-                });
-            } else {
-                init_channel();
-            }
-        } else if (is_private_mode) {
-            warn('Your browser don\'t support localStorgage. ' +
-                 'In Safari this is most of the time because ' +
-                 'of "Private Browsing Mode"');
-        }
+    function seutp() {
+        setup_channel();
+
         if (!is_private_mode) {
             setup_ls();
         }
@@ -819,6 +810,28 @@
                 });
             });
         }
+    }
+    // -------------------------------------------------------------------------
+    function init() {
+        if (typeof window.BroadcastChannel === 'function') {
+            if (is_proxy_iframe() && document.requestStorageAccess) {
+                document.requestStorageAccess({
+                    all: true
+                }).then(function(handle) {
+                    sa_handle = handle;
+                    log({init: handle});
+                    seutp();
+                }).catch(seutp);
+            } else {
+                seutp();
+            }
+            return sysend;
+        } else if (is_private_mode) {
+            warn('Your browser don\'t support localStorgage. ' +
+                 'In Safari this is most of the time because ' +
+                 'of "Private Browsing Mode"');
+        }
+        seutp();
     }
     return sysend;
 });
