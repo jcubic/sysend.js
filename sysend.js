@@ -100,12 +100,12 @@
                 if (typeof url === 'string' && host(url) !== window.location.host) {
                     domains = domains || [];
                     domains.push(origin(url));
-                    const iframe = document.createElement('iframe');
+                    var iframe = document.createElement('iframe');
                     iframe.style.width = iframe.style.height = 0;
                     iframe.style.position = 'absolute';
                     iframe.style.top = iframe.style.left = '-9999px';
                     iframe.style.border = 'none';
-                    let proxy_url = url;
+                    var proxy_url = url;
                     if (!url.match(/\.html|\.php|\?/)) {
                         proxy_url = url.replace(/\/$/, '') + '/proxy.html';
                     }
@@ -117,7 +117,7 @@
                         iframe.removeEventListener('error', handler);
                     });
                     iframe.addEventListener('load', function handler() {
-                        let win;
+                        var win;
                         // fix for Safari
                         // https://stackoverflow.com/q/42632188/387194
                         try {
@@ -193,11 +193,11 @@
             });
         },
         list: function() {
-            const id = list_id++;
-            const marker = { target: target_id, id: id };
-            const timer = delay(sysend.timeout);
+            var id = list_id++;
+            var marker = { target: target_id, id: id, origin: self.origin };
+            var timer = delay(sysend.timeout);
             return new Promise(function(resolve) {
-                const ids = [];
+                var ids = [];
                 sysend.on(make_internal('__window_ack__'), function(data) {
                     log('__window_ack__', { data, marker });
                     if (data.origin.target === target_id && data.origin.id === id) {
@@ -229,17 +229,17 @@
             }
         },
         rpc: function(object) {
-            const prefix = ++rpc_count;
-            const req = `__${prefix}_rpc_request__`;
-            const res = `__${prefix}_rpc_response__`;
-            let request_index = 0;
-            const timeout = 1000;
+            var prefix = ++rpc_count;
+            var req = `__${prefix}_rpc_request__`;
+            var res = `__${prefix}_rpc_response__`;
+            var request_index = 0;
+            var timeout = 1000;
             function request(id, method, args = []) {
-                const req_id = ++request_index;
+                var req_id = ++request_index;
                 return new Promise((resolve, reject) => {
                     sysend.track('message', function handler({data, origin}) {
                         if (data.type === res) {
-                            const { result, error, id: res_id } = data;
+                            var { result, error, id: res_id } = data;
                             if (origin === id && req_id === res_id) {
                                 if (error) {
                                     reject(error);
@@ -252,7 +252,7 @@
                         }
                     }, true);
                     sysend.post(id, { method, id: req_id, type: req, args });
-                    const timer = setTimeout(() => {
+                    var timer = setTimeout(() => {
                         reject(new Error('Timeout error'));
                     }, timeout);
                 });
@@ -260,8 +260,8 @@
 
             sysend.track('message', async function handler({ data, origin }) {
                 if (data.type == req) {
-                    const { method, args, id } = data;
-                    const type = res;
+                    var { method, args, id } = data;
+                    var type = res;
                     if (Object.hasOwn(object, method)) {
                         try {
                             unpromise(object[method](...args), function(result) {
@@ -278,7 +278,7 @@
                     }
                 }
             }, true);
-            const error_msg = 'You need to specify the target window/tab';
+            var error_msg = 'You need to specify the target window/tab';
             return Object.fromEntries(Object.keys(object).map(name => {
                 return [name, (id, ...args) => {
                     if (!id) {
@@ -329,7 +329,7 @@
     // -------------------------------------------------------------------------
     function unpromise(obj, callback, error = null) {
         if (is_promise(obj)) {
-            const ret = obj.then(callback);
+            var ret = obj.then(callback);
             if (error === null) {
                 return ret;
             } else {
@@ -644,7 +644,7 @@
     }
     // -------------------------------------------------------------------------
     function setup_update_tracking() {
-        let list = [];
+        var list = [];
 
         function update() {
             trigger(handlers.update, list);
