@@ -173,7 +173,7 @@
                     if (internal) {
                         handlers[event] = [];
                     } else {
-                        handlers[event] = handlers[event].filter(fn => {
+                        handlers[event] = handlers[event].filter(function(fn) {
                             return !fn[Symbol.for(uniq_prefix)];
                         });
                     }
@@ -236,7 +236,7 @@
             var timeout = 1000;
             function request(id, method, args = []) {
                 var req_id = ++request_index;
-                return new Promise((resolve, reject) => {
+                return new Promise(function(resolve, reject) {
                     sysend.track('message', function handler({data, origin}) {
                         if (data.type === res) {
                             var { result, error, id: res_id } = data;
@@ -252,7 +252,7 @@
                         }
                     }, true);
                     sysend.post(id, { method, id: req_id, type: req, args });
-                    var timer = setTimeout(() => {
+                    var timer = setTimeout(function() {
                         reject(new Error('Timeout error'));
                     }, timeout);
                 });
@@ -279,8 +279,8 @@
                 }
             }, true);
             var error_msg = 'You need to specify the target window/tab';
-            return Object.fromEntries(Object.keys(object).map(name => {
-                return [name, (id, ...args) => {
+            return Object.fromEntries(Object.keys(object).map(function(name) {
+                return [name, function(id, ...args) {
                     if (!id) {
                         return Promise.reject(new Error(error_msg));
                     }
@@ -650,7 +650,7 @@
             trigger(handlers.update, list);
         }
 
-        sysend.track('open', data => {
+        sysend.track('open', function(data) {
             if (data.id !== sysend.id) {
                 list.push(data);
                 log({ list, action: 'open' });
@@ -658,8 +658,10 @@
             }
         }, true);
 
-        sysend.track('close', data => {
-            list = list.filter(tab => data.id !== tab.id);
+        sysend.track('close', function(data) {
+            list = list.filter(function(tab) {
+                return data.id !== tab.id;
+            });
             log({ list, action: 'close' });
             update();
         }, true);
