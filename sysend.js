@@ -426,7 +426,11 @@
     // :: valid sysend message
     // -------------------------------------------------------------------------
     function is_sysend_post_message(e) {
-        return typeof e.data === 'string' && is_internal(e.data);
+        return is_string(e.data) && is_internal(e.data);
+    }
+    // -------------------------------------------------------------------------
+    function is_secured_iframe() {
+        return is_proxy_iframe() && window.isSecureContext;
     }
     // -------------------------------------------------------------------------
     function is_valid_origin(origin) {
@@ -851,8 +855,8 @@
     }
     // -------------------------------------------------------------------------
     function init() {
-        if (typeof window.BroadcastChannel === 'function') {
-            if (is_proxy_iframe() && document.requestStorageAccess) {
+        if (is_function(window.BroadcastChannel)) {
+            if (is_secured_iframe() && document.requestStorageAccess) {
                 document.requestStorageAccess({
                     all: true
                 }).then(function(handle) {
