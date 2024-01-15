@@ -2,8 +2,8 @@
   <img src="https://github.com/jcubic/sysend.js/blob/master/assets/logo.svg?raw=true" alt="Sysend.js logo"/>
 </p>
 
-[![npm](https://img.shields.io/badge/npm-1.17.2-blue.svg)](https://www.npmjs.com/package/sysend)
-![bower](https://img.shields.io/badge/bower-1.17.2-yellow.svg)
+[![npm](https://img.shields.io/badge/npm-1.17.3-blue.svg)](https://www.npmjs.com/package/sysend)
+![bower](https://img.shields.io/badge/bower-1.17.3-yellow.svg)
 ![downloads](https://img.shields.io/npm/dt/sysend.svg)
 [![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/sysend)](https://www.jsdelivr.com/package/npm/sysend)
 
@@ -298,7 +298,7 @@ The library was featured in:
 
 ## License
 
-Copyright (C) 2014-2023 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
+Copyright (C) 2014 [Jakub T. Jankiewicz](https://jcubic.pl/me)<br/>
 Released under the [MIT license](https://opensource.org/licenses/MIT)
 
 This is free software; you are free to change and redistribute it.<br/>

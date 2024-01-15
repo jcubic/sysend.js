@@ -1,6 +1,6 @@
 {
   "name": "sysend",
-  "version": "1.17.2",
+  "version": "1.17.3",
   "description": "Communication and Synchronization between browser tabs/windows. Works cross-domain.",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
