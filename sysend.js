@@ -99,7 +99,16 @@
             args.forEach(function(url) {
                 if (is_string(url) && host(url) !== window.location.host) {
                     domains = domains || [];
-                    domains.push(origin(url));
+                    var orig = origin(url);
+                    if (domains.includes(orig)) {
+                        var selector = 'iframe[src="' + url + '"]';
+                        if (document.querySelector(selector)) {
+                            warn('You already called proxy on ' + url +
+                                 ' you only need to call this function once');
+                            return;
+                        }
+                    }
+                    domains.push(orig);
                     var iframe = document.createElement('iframe');
                     iframe.style.width = iframe.style.height = 0;
                     iframe.style.position = 'absolute';
