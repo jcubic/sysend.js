@@ -87,7 +87,7 @@
             return sysend;
         },
         serializer: function(to, from) {
-            if (typeof to !== 'function' || typeof from !== 'function') {
+            if (!(is_function(to) && is_function(from))) {
                 throw new Error('sysend::serializer: Invalid argument, expecting' +
                                 ' function');
             }
@@ -97,7 +97,7 @@
         },
         proxy: function(...args) {
             args.forEach(function(url) {
-                if (typeof url === 'string' && host(url) !== window.location.host) {
+                if (is_string(url) && host(url) !== window.location.host) {
                     domains = domains || [];
                     domains.push(origin(url));
                     var iframe = document.createElement('iframe');
@@ -324,11 +324,6 @@
         };
     })();
     // -------------------------------------------------------------------------
-    function is_promise(obj) {
-        return obj && typeof object == 'object' &&
-            typeof object.then === 'function';
-    }
-    // -------------------------------------------------------------------------
     function unpromise(obj, callback, error = null) {
         if (is_promise(obj)) {
             var ret = obj.then(callback);
@@ -410,6 +405,18 @@
     // -------------------------------------------------------------------------
     function make_internal(name) {
         return uniq_prefix + name;
+    }
+    // -------------------------------------------------------------------------
+    function is_promise(obj) {
+        return obj && typeof object == 'object' && is_function(object.then);
+    }
+    // -------------------------------------------------------------------------
+    function is_function(o) {
+        return typeof o === 'function';
+    }
+    // -------------------------------------------------------------------------
+    function is_string(o) {
+        return typeof o === 'string';
     }
     // -------------------------------------------------------------------------
     function is_internal(name) {
@@ -589,7 +596,7 @@
             hidden = 'webkitHidden';
             visibilityChange = 'webkitvisibilitychange';
         }
-        if (typeof document.addEventListener === 'function' && hidden) {
+        if (is_function(document.addEventListener) && hidden) {
             document.addEventListener(visibilityChange, function() {
                 trigger(handlers.visbility, !document[hidden]);
             }, false);
