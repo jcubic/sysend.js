@@ -4,8 +4,7 @@
   "description": "Communication and Synchronization between browser tabs/windows. Works cross-domain.",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jcubic/sysend.js.git"
@@ -29,5 +28,10 @@
   "bugs": {
     "url": "https://github.com/jcubic/sysend.js/issues"
   },
-  "homepage": "https://github.com/jcubic/sysend.js#readme"
+  "homepage": "https://github.com/jcubic/sysend.js#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.7.0",
+    "eslint": "^9.7.0",
+    "globals": "^15.8.0"
+  }
 }
