@@ -8,7 +8,7 @@
  *  http://stackoverflow.com/q/24182409/387194
  *
  */
-/* global define, module, exports, localStorage, setTimeout */
+/* global define, module, exports, Symbol, Promise */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(['sysend'], factory);
@@ -68,7 +68,7 @@
         id: target_id,
         broadcast: function(event, data) {
             if (channel && !force_ls) {
-                log('broadcast', { event, data });
+                log('broadcast', { event: event, data: data });
                 channel.postMessage({name: event, data: serialize(data)});
             } else {
                 set(event, to_json(data));
@@ -81,7 +81,7 @@
             return sysend;
         },
         emit: function(event, data) {
-            log('emit', { event, data });
+            log('emit', { event: event, data: data });
             sysend.broadcast(event, data);
             invoke(event, data);
             return sysend;
@@ -95,7 +95,8 @@
             serializer.from = from;
             return sysend;
         },
-        proxy: function(...args) {
+        proxy: function() {
+            var args = Array.prototype.slice.call(arguments);
             args.forEach(function(url) {
                 if (is_string(url) && host(url) !== window.location.host) {
                     domains = domains || [];
@@ -153,7 +154,7 @@
             callbacks[event].push(fn);
             return sysend;
         },
-        off: function(event, fn, internal = false) {
+        off: function(event, fn, internal) {
             if (callbacks[event]) {
                 if (fn) {
                     for (var i = callbacks[event].length; i--;) {
@@ -167,7 +168,7 @@
             }
             return sysend;
         },
-        track: function(event, fn, internal = false) {
+        track: function(event, fn, internal) {
             if (internal) {
                 fn[Symbol.for(uniq_prefix)] = true;
             }
@@ -176,7 +177,7 @@
             }
             return sysend;
         },
-        untrack: function(event, fn, internal = false) {
+        untrack: function(event, fn, internal) {
             if (events.includes(event) && handlers[event].length) {
                 if (fn === undefined) {
                     if (internal) {
@@ -208,7 +209,7 @@
             return new Promise(function(resolve) {
                 var ids = [];
                 function handler(data) {
-                    log('__window_ack__', { data, marker });
+                    log('__window_ack__', { data: data, marker: marker });
                     if (data.origin.target === target_id && data.origin.id === id) {
                         ids.push({
                             id: data.id,
@@ -219,13 +220,14 @@
                 sysend.on(make_internal('__window_ack__'), handler);
                 sysend.broadcast(make_internal('__window__'), { id: marker });
                 timer().then(function() {
-                    log('timeout', { ids });
+                    log('timeout', { ids: ids });
                     sysend.off(make_internal('__window_ack__'), handler);
                     resolve(ids);
                 });
             });
         },
-        channel: function(...args) {
+        channel: function() {
+            var args = Array.prototype.slice.call(arguments);
             domains = args.map(origin);
             return sysend;
         },
@@ -241,60 +243,79 @@
         },
         rpc: function(object) {
             var prefix = ++rpc_count;
-            var req = `__${prefix}_rpc_request__`;
-            var res = `__${prefix}_rpc_response__`;
+            var req = "__" + prefix + "_rpc_request__";
+            var res = "__" + prefix + "_rpc_response__";
             var request_index = 0;
             var timeout = 1000;
-            function request(id, method, args = []) {
+            function request(id, method, args) {
+                args = args || [];
                 var req_id = ++request_index;
                 return new Promise(function(resolve, reject) {
-                    sysend.track('message', function handler({data, origin}) {
+                    sysend.track('message', function handler(message) {
+                        var data = message.data;
+                        var origin = message.origin;
                         if (data.type === res) {
-                            var { result, error, id: res_id } = data;
-                            if (origin === id && req_id === res_id) {
-                                if (error) {
-                                    reject(error);
+                            if (origin === id && req_id === data.id) {
+                                if (data.error) {
+                                    reject(data.error);
                                 } else {
-                                    resolve(result);
+                                    resolve(data.result);
                                 }
                                 clearTimeout(timer);
                                 sysend.untrack('message', handler);
                             }
                         }
                     }, true);
-                    sysend.post(id, { method, id: req_id, type: req, args });
+                    var payload = {
+                        method: method,
+                        id: req_id,
+                        type: req,
+                        args: args
+                    };
+                    sysend.post(id, payload);
                     var timer = setTimeout(function() {
                         reject(new Error('Timeout error'));
                     }, timeout);
                 });
             }
 
-            sysend.track('message', async function handler({ data, origin }) {
+            sysend.track('message', function handler(message) {
+                var data = message.data;
+                var origin = message.origin;
                 if (data.type == req) {
-                    var { method, args, id } = data;
                     var type = res;
-                    if (Object.hasOwn(object, method)) {
+                    if (Object.hasOwn(object, data.method)) {
                         try {
-                            unpromise(object[method](...args), function(result) {
-                                sysend.post(origin, { result, id, type });
+                            var fn = object[data.method];
+                            unpromise(fn.apply(object, data.args), function(result) {
+                                sysend.post(origin, { result: result, id: data.id, type: type });
                             }, function(error) {
-                                sysend.post(origin, { error: error.message, id, type });
+                                sysend.post(origin, { error: error.message, id: data.id, type: type });
                             });
                         } catch(e) {
-                            sysend.post(origin, { error: e.message, id, type });
+                            sysend.post(origin, {
+                                error: e.message,
+                                id: id,
+                                type: type
+                            });
                         }
                     } else {
-                        sysend.post(origin, { error: 'Method not found', id, type });
+                        sysend.post(origin, {
+                            error: 'Method not found',
+                            id: id,
+                            type: type
+                        });
 
                     }
                 }
             }, true);
             var error_msg = 'You need to specify the target window/tab';
             return Object.fromEntries(Object.keys(object).map(function(name) {
-                return [name, function(id, ...args) {
+                return [name, function(id) {
                     if (!id) {
                         return Promise.reject(new Error(error_msg));
                     }
+                    var args = Array.prototype.slice.call(arguments, 1);
                     return request(id, name, args);
                 }];
             }));
@@ -333,10 +354,10 @@
         };
     })();
     // -------------------------------------------------------------------------
-    function unpromise(obj, callback, error = null) {
+    function unpromise(obj, callback, error) {
         if (is_promise(obj)) {
             var ret = obj.then(callback);
-            if (error === null) {
+            if (!error) {
                 return ret;
             } else {
                 return ret.catch(error);
@@ -417,7 +438,7 @@
     }
     // -------------------------------------------------------------------------
     function is_promise(obj) {
-        return obj && typeof object == 'object' && is_function(object.then);
+        return obj && typeof obj == 'object' && is_function(obj.then);
     }
     // -------------------------------------------------------------------------
     function is_function(o) {
@@ -477,7 +498,8 @@
         });
     }
     // -------------------------------------------------------------------------
-    function trigger(arr, ...args) {
+    function trigger(arr) {
+        var args = Array.prototype.slice.call(arguments, 1);
         arr.forEach(function(fn) {
             fn.apply(null, args);
         });
@@ -498,7 +520,7 @@
     // -------------------------------------------------------------------------
     function set(key, value) {
         // storage event is not fired when value is set first time
-        log({set: key, value});
+        log({set: key, value: value});
         if (id == 0) {
             ls().setItem(make_internal(key), random_value);
         }
@@ -679,7 +701,7 @@
         sysend.track('open', function(data) {
             if (data.id !== sysend.id) {
                 list.push(data);
-                log({ list, action: 'open' });
+                log({ list: list, action: 'open' });
                 update();
             }
         }, true);
@@ -688,7 +710,7 @@
             list = list.filter(function(tab) {
                 return data.id !== tab.id;
             });
-            log({ list, action: 'close' });
+            log({ list: list, action: 'close' });
             update();
         }, true);
 
@@ -697,7 +719,8 @@
     // -------------------------------------------------------------------------
     function setup_channel() {
         if (sa_handle) {
-            if (sa_handle.hasOwnProperty('BroadcastChannel')) {
+            var hasOwnProperty = Object.prototype.hasOwnProperty;
+            if (hasOwnProperty.call(sa_handle, 'BroadcastChannel')) {
                 channel = new sa_handle.BroadcastChannel(uniq_prefix);
             }
         } else {
@@ -811,7 +834,7 @@
             });
 
             sysend.on(make_internal('__window__'), function(data) {
-                log('__window__', { data })
+                log('__window__', { data: data })
                 sysend.broadcast(make_internal('__window_ack__'), {
                     id: target_id,
                     origin: data.id,
@@ -865,7 +888,7 @@
     // -------------------------------------------------------------------------
     function init() {
         if (is_function(window.BroadcastChannel)) {
-            const ssa = document.requestStorageAccess && 'hasUnpartitionedCookieAccess' in document;
+            var ssa = document.requestStorageAccess && 'hasUnpartitionedCookieAccess' in document;
             if (is_secured_iframe() && ssa) {
                 document.requestStorageAccess({
                     all: true

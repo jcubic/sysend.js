@@ -4,7 +4,9 @@
   "description": "Communication and Synchronization between browser tabs/windows. Works cross-domain.",
   "main": "sysend.js",
   "typings": "sysend.d.ts",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jcubic/sysend.js.git"

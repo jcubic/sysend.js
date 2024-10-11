@@ -15,5 +15,15 @@ export default [
       globals: globals.browser
     }
   },
+  {
+    rules: {
+      "no-unused-vars": [
+        "error",
+        {
+          caughtErrors: "none"
+        }
+      ]
+    }
+  },
   pluginJs.configs.recommended
 ];
