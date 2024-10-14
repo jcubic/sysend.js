@@ -8,3 +8,4 @@ windows.html
 sysend.php
 test.ts
 .github
+eslint.config.mjs
